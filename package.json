@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Casual Academic (Tutor) Management System — School of ICT, Griffith University",
+  "description": "Casual Academic (Tutor) Management System \u2014 School of ICT, Griffith University",
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.json --noEmit && vite build",
@@ -12,7 +12,8 @@
     "lint": "eslint . --ext .ts,.tsx",
     "bootstrap": "tsx scripts/bootstrap.ts",
     "smoke": "tsx scripts/smoke.ts",
-    "gen:setup": "bash scripts/gen-setup.sh"
+    "gen:setup": "bash scripts/gen-setup.sh",
+    "seed:live": "tsx scripts/seed-live.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.114.0",
