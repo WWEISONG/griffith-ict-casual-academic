@@ -1,13 +1,22 @@
 {
+  // Typechecks the Node-side scripts. TypeScript follows imports from here
+  // into src/ on its own, so src is not listed in "include" — doing so would
+  // pull in .tsx components this project has no reason to compile.
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022"],
+    // scripts/smoke.ts drives LocalProvider, which is browser code, so both
+    // the DOM and Node type sets are needed.
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "types": ["node"],
+    "jsx": "react-jsx",
     "skipLibCheck": true,
     "strict": true,
-    "noEmit": true
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": { "@/*": ["src/*"] }
   },
   "include": ["scripts"]
 }
