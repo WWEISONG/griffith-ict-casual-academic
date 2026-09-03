@@ -157,7 +157,7 @@ function CreateStaffModal({ open, onClose, onSaved }: {
            </>}>
       <div className="space-y-4">
         <Field label="Full name" required>
-          <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Dr Jane Citizen" />
+          <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Jane Citizen" />
         </Field>
         <Field label="Griffith staff email" required
                error={emailOk ? undefined : 'Staff accounts require a @griffith.edu.au address.'}>

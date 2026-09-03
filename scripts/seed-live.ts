@@ -211,7 +211,7 @@ async function seedOne(a: Applicant) {
  */
 const LECTURER = {
   email: 'sample.convenor@griffith.edu.au',
-  name: 'Dr Sample Convenor',
+  name: 'Sample Convenor',
   courses: ['1811ICT', '1001ICT', '2801ICT', '2814ICT', '7905ICT'],
 }
 

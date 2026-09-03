@@ -93,9 +93,9 @@ export const SEED_PROFILES: Profile[] = [
   // mirror lets the same person sign in when running without a backend.
   staff('u_admin', 'w.song@griffith.edu.au', 'Wei Song', 'admin', 'Super Administrator — School of ICT'),
 
-  staff('u_lec1', 'a.nguyen@griffith.edu.au', 'Dr Anh Nguyen', 'lecturer', 'Course Convenor — Programming'),
-  staff('u_lec2', 'm.patel@griffith.edu.au', 'Dr Meera Patel', 'lecturer', 'Course Convenor — Cyber Security'),
-  staff('u_lec3', 'j.oconnor@griffith.edu.au', "A/Prof James O'Connor", 'lecturer', 'Course Convenor — Networks & Data'),
+  staff('u_lec1', 'a.nguyen@griffith.edu.au', 'Anh Nguyen', 'lecturer', 'Course Convenor — Programming'),
+  staff('u_lec2', 'm.patel@griffith.edu.au', 'Meera Patel', 'lecturer', 'Course Convenor — Cyber Security'),
+  staff('u_lec3', 'j.oconnor@griffith.edu.au', "James O'Connor", 'lecturer', 'Course Convenor — Networks & Data'),
 
   student('u_s1', 'liam.chen@griffithuni.edu.au', 'Liam Chen', 's5201883', 'Bachelor of Computer Science', 'undergraduate', 6.4, 'Nathan'),
   student('u_s2', 'priya.sharma@griffithuni.edu.au', 'Priya Sharma', 's5188204', 'Master of Information Technology', 'masters', 6.1, 'Nathan'),
@@ -311,14 +311,14 @@ export const SEED_ASSIGNMENTS: Assignment[] = [
 // --- Review trail -------------------------------------------------------------
 
 export const SEED_NOTES: ApplicationNote[] = [
-  { id: 'note_1', applicationId: 'app_1', authorId: 'u_lec1', authorName: 'Dr Anh Nguyen', body: 'Excellent prior performance in 1811ICT. Student evaluations were the highest in the tutor group. Recommend offering two groups.', createdAt: iso(12) },
-  { id: 'note_2', applicationId: 'app_2', authorId: 'u_lec1', authorName: 'Dr Anh Nguyen', body: 'Strongest algorithms candidate this round. Offer made 2801ICT, 8 hrs/week. Awaiting response.', createdAt: iso(9) },
-  { id: 'note_3', applicationId: 'app_3', authorId: 'u_lec3', authorName: "A/Prof James O'Connor", body: 'Confirmed for 3808ICT. Will also coordinate the marking team again — flagging to School for the coordination loading.', createdAt: iso(13) },
-  { id: 'note_4', applicationId: 'app_9', authorId: 'u_lec1', authorName: 'Dr Anh Nguyen', body: 'GPA below the usual 5.5 guideline, but relevant industry experience for 1621ICT. Worth a conversation before deciding.', createdAt: iso(3) },
+  { id: 'note_1', applicationId: 'app_1', authorId: 'u_lec1', authorName: 'Anh Nguyen', body: 'Excellent prior performance in 1811ICT. Student evaluations were the highest in the tutor group. Recommend offering two groups.', createdAt: iso(12) },
+  { id: 'note_2', applicationId: 'app_2', authorId: 'u_lec1', authorName: 'Anh Nguyen', body: 'Strongest algorithms candidate this round. Offer made 2801ICT, 8 hrs/week. Awaiting response.', createdAt: iso(9) },
+  { id: 'note_3', applicationId: 'app_3', authorId: 'u_lec3', authorName: "James O'Connor", body: 'Confirmed for 3808ICT. Will also coordinate the marking team again — flagging to School for the coordination loading.', createdAt: iso(13) },
+  { id: 'note_4', applicationId: 'app_9', authorId: 'u_lec1', authorName: 'Anh Nguyen', body: 'GPA below the usual 5.5 guideline, but relevant industry experience for 1621ICT. Worth a conversation before deciding.', createdAt: iso(3) },
 ]
 
 export const SEED_CONTACT_LOG: ContactLogEntry[] = [
-  { id: 'ct_1', applicationId: 'app_1', lecturerId: 'u_lec1', lecturerName: 'Dr Anh Nguyen', method: 'email', subject: '1811ICT tutoring — Trimester 1', notes: 'Invited to a short meeting to discuss group allocation.', contactedAt: iso(12) },
-  { id: 'ct_2', applicationId: 'app_2', lecturerId: 'u_lec1', lecturerName: 'Dr Anh Nguyen', method: 'email', subject: 'Offer — 2801ICT tutor', notes: 'Formal offer sent; copied School admin.', contactedAt: iso(9) },
-  { id: 'ct_3', applicationId: 'app_3', lecturerId: 'u_lec3', lecturerName: "A/Prof James O'Connor", method: 'meeting', subject: 'Networks tutoring plan', notes: 'Met on campus. Agreed to 3808ICT plus marking coordination.', contactedAt: iso(14) },
+  { id: 'ct_1', applicationId: 'app_1', lecturerId: 'u_lec1', lecturerName: 'Anh Nguyen', method: 'email', subject: '1811ICT tutoring — Trimester 1', notes: 'Invited to a short meeting to discuss group allocation.', contactedAt: iso(12) },
+  { id: 'ct_2', applicationId: 'app_2', lecturerId: 'u_lec1', lecturerName: 'Anh Nguyen', method: 'email', subject: 'Offer — 2801ICT tutor', notes: 'Formal offer sent; copied School admin.', contactedAt: iso(9) },
+  { id: 'ct_3', applicationId: 'app_3', lecturerId: 'u_lec3', lecturerName: "James O'Connor", method: 'meeting', subject: 'Networks tutoring plan', notes: 'Met on campus. Agreed to 3808ICT plus marking coordination.', contactedAt: iso(14) },
 ]
