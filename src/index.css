@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root { color-scheme: light; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    @apply bg-ink-50 font-sans text-ink-900 antialiased;
+  }
+
+  /* Visible, consistent focus for keyboard users — an accessibility
+     requirement for university systems (WCAG 2.1 AA). */
+  :focus-visible {
+    @apply outline-none ring-2 ring-griffith-600 ring-offset-2 ring-offset-white;
+  }
+
+  ::selection { @apply bg-griffith-100 text-griffith-900; }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-ink-200 bg-white shadow-card;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-ink-800;
+  }
+  .hint {
+    @apply mt-1.5 text-xs text-ink-500;
+  }
+  /* Table rows that are also links need a whole-row hover affordance. */
+  .row-link {
+    @apply cursor-pointer transition-colors hover:bg-ink-50;
+  }
+}
+
+/* Respect users who have asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
