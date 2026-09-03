@@ -10,7 +10,6 @@ import { Login } from '@/pages/auth/Login'
 import { Register } from '@/pages/auth/Register'
 import { StudentPortal } from '@/pages/student/StudentPortal'
 import { FindTutor } from '@/pages/staff/FindTutor'
-import { ByCourse } from '@/pages/staff/ByCourse'
 import { PersonDetail } from '@/pages/staff/PersonDetail'
 import { Allocations } from '@/pages/staff/Allocations'
 import { People } from '@/pages/admin/People'
@@ -41,26 +40,29 @@ function AppHome() {
 
 function Shell({ children }: { children: React.ReactNode }) {
   const { role } = useAuth()
-  // The student portal is deliberately one page — no sidebar to navigate.
-  if (role === 'student') {
-    return <StudentChrome>{children}</StudentChrome>
-  }
-  return <AppShell>{children}</AppShell>
+  // Students and convenors each have a single page, so neither needs a sidebar.
+  // Only administrators, who have several, get the full navigation shell.
+  if (role === 'admin') return <AppShell>{children}</AppShell>
+  return <PlainChrome wide={role === 'lecturer'}>{children}</PlainChrome>
 }
 
-function StudentChrome({ children }: { children: React.ReactNode }) {
-  const { profile, signOut } = useAuth()
+function PlainChrome({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
+  const { profile, signOut, role } = useAuth()
+  const width = wide ? 'max-w-7xl' : 'max-w-5xl'
   return (
     <div className="min-h-screen bg-ink-50">
       <header className="sticky top-0 z-30 border-b border-ink-200 bg-white">
-        <div className="mx-auto flex h-14 max-w-4xl items-center gap-3 px-5">
+        <div className={`mx-auto flex h-14 ${width} items-center gap-3 px-6`}>
           <Brand size={30} />
           <div className="min-w-0 leading-tight">
             <p className="truncate text-sm font-semibold text-ink-900">Casual Academic Portal</p>
             <p className="truncate text-[11px] text-ink-500">School of ICT · Griffith University</p>
           </div>
           <div className="ml-auto flex items-center gap-3">
-            <p className="hidden text-sm text-ink-700 sm:block">{profile?.fullName}</p>
+            <div className="hidden text-right leading-tight sm:block">
+              <p className="text-sm font-medium text-ink-900">{profile?.fullName}</p>
+              {role === 'lecturer' && <p className="text-[11px] text-ink-500">Course Convenor</p>}
+            </div>
             <button onClick={() => signOut()}
                     className="rounded-lg px-3 py-1.5 text-sm font-medium text-ink-700 hover:bg-ink-100">
               Sign out
@@ -68,7 +70,7 @@ function StudentChrome({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      {children}
+      {wide ? <main className={`mx-auto ${width} px-6 py-8`}>{children}</main> : children}
     </div>
   )
 }
@@ -88,8 +90,6 @@ function Router() {
       <Route path="/app" element={<Protected><Shell><AppHome /></Shell></Protected>} />
 
       {/* Staff */}
-      <Route path="/app/courses" element={
-        <Protected allow={['lecturer', 'admin']}><Shell><ByCourse /></Shell></Protected>} />
       <Route path="/app/people/:id" element={
         <Protected allow={['lecturer', 'admin']}><Shell><PersonDetail /></Shell></Protected>} />
       <Route path="/app/allocations" element={
