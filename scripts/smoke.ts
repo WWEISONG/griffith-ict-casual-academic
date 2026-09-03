@@ -8,7 +8,7 @@
  *   npx tsx scripts/smoke.ts
  */
 import { LocalProvider } from '../src/lib/provider/mock/LocalProvider'
-import { LOCAL_PASSWORD } from '../src/lib/provider/mock/seed'
+import { LOCAL_PASSWORD, SUPER_ADMIN_EMAIL } from '../src/lib/provider/mock/seed'
 
 // Minimal localStorage shim so the provider runs outside a browser.
 const store = new Map<string, string>()
@@ -47,6 +47,8 @@ async function main() {
 
   const admin = await p.signIn('w.song@griffith.edu.au', LOCAL_PASSWORD)
   check('super administrator can sign in', admin.profile.role === 'admin', `got role=${admin.profile.role}`)
+  check('the super administrator is the nominated owner address',
+        admin.email === SUPER_ADMIN_EMAIL)
   check('administrator identity is correct', admin.email === 'w.song@griffith.edu.au')
 
   console.log('\nAdministrator scope')

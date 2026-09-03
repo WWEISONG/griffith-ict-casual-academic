@@ -27,6 +27,12 @@ import type {
  * Password used by LocalProvider accounts when running without a backend.
  * Supplied via VITE_LOCAL_ADMIN_PASSWORD in .env.local (never committed).
  */
+/**
+ * The School's super administrator. Mirrors super_admin_email() in the
+ * database (migration 0007) so both backends agree on who owns the system.
+ */
+export const SUPER_ADMIN_EMAIL = 'w.song@griffith.edu.au'
+
 export const LOCAL_PASSWORD: string =
   ((import.meta as { env?: Record<string, string | undefined> }).env?.VITE_LOCAL_ADMIN_PASSWORD) ?? 'changeme'
 
