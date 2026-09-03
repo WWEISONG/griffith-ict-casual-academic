@@ -7,18 +7,16 @@
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getProvider } from '@/lib/provider'
 import { useAsync } from '@/hooks/useAsync'
-import { useAuth } from '@/lib/auth/AuthContext'
 import {
-  Avatar, Badge, Button, Card, CardHeader, EmptyState, ErrorState, LoadingState,
+  Avatar, Badge, Card, CardHeader, EmptyState, ErrorState, LoadingState,
 } from '@/components/ui'
 import { courseLabel } from '@/data/courses'
-import { formatDate, mailto, relativeTime, trimesterShort } from '@/lib/utils'
+import { formatDate, relativeTime, trimesterShort } from '@/lib/utils'
 import { TUTOR_ROLE_LABEL } from '@/types'
 
 export function PersonDetail() {
   const { id } = useParams<{ id: string }>()
   const provider = getProvider()
-  const { profile: me } = useAuth()
   const navigate = useNavigate()
 
   const state = useAsync(async () => {
@@ -41,17 +39,6 @@ export function PersonDetail() {
 
   const { person, experience, application, row } = state.data
 
-  const emailBody = [
-    `Dear ${person.fullName.split(' ')[0]},`,
-    '',
-    'I am staffing tutorials in the School of ICT and would like to discuss a tutoring role with you.',
-    '',
-    'Kind regards,',
-    me?.fullName ?? '',
-    'School of Information and Communication Technology',
-    'Griffith University',
-  ].join('\n')
-
   return (
     <>
       <button onClick={() => navigate(-1)}
@@ -73,11 +60,6 @@ export function PersonDetail() {
             {row?.appliedAt && <> · applied {formatDate(row.appliedAt)}</>}
           </p>
         </div>
-        <a href={mailto(person.email, 'ICT tutoring', emailBody)}>
-          <Button icon={
-            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 6l7 5 7-5M3 5h14v10H3z" /></svg>
-          }>Email {person.fullName.split(' ')[0]}</Button>
-        </a>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-3">
