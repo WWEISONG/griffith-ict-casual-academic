@@ -81,7 +81,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
 
           <div className="flex min-w-0 items-center gap-2.5">
-            <Brand size={30} className="shrink-0" />
+            <Brand size={28} className="shrink-0" />
             <div className="min-w-0 leading-tight">
               <p className="truncate text-sm font-semibold text-ink-900">Casual Academic Portal</p>
               <p className="truncate text-[11px] text-ink-500">School of ICT · Griffith University</p>

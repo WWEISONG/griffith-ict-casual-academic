@@ -32,6 +32,10 @@ export function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  // Shown after a failed attempt: the cause may simply be that they have not
+  // registered yet. Supabase does not distinguish "no account" from "wrong
+  // password" (deliberately, to prevent user enumeration), so we offer both.
+  const [failedOnce, setFailedOnce] = useState(false)
   const [busy, setBusy] = useState(false)
   // The sample-account panel is a means to an end: once an account has been
   // chosen it has served its purpose and only adds noise.
@@ -46,6 +50,7 @@ export function Login() {
       navigate('/app')
     } catch (err) {
       setError((err as Error).message)
+      setFailedOnce(true)
     } finally {
       setBusy(false)
     }
@@ -73,6 +78,29 @@ export function Login() {
         {error && (
           <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-red-800">
             {error}
+          </div>
+        )}
+
+        {failedOnce && !staffMode && (
+          <div className="rounded-lg border border-ink-200 bg-ink-50 px-3.5 py-3 text-sm text-ink-700">
+            Not registered yet?{' '}
+            <Link
+              to={`/register${email ? `?email=${encodeURIComponent(email)}` : ''}`}
+              className="font-medium text-griffith-700 hover:underline"
+            >
+              Create an account
+            </Link>{' '}
+            — it takes a minute, and you can start your application straight away.
+          </div>
+        )}
+
+        {failedOnce && staffMode && (
+          <div className="rounded-lg border border-ink-200 bg-ink-50 px-3.5 py-3 text-sm leading-relaxed text-ink-700">
+            Staff accounts are created by the School administrator. If you do not have
+            one yet, contact{' '}
+            <a href={`mailto:${ADMIN_CONTACT}`} className="font-medium text-griffith-700 hover:underline">
+              {ADMIN_CONTACT}
+            </a>.
           </div>
         )}
 

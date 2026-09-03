@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { Button, Field, Input, Select } from '@/components/ui'
 import { AuthLayout } from './AuthLayout'
@@ -26,9 +26,12 @@ const PROGRAMS = [
 export function Register() {
   const { register } = useAuth()
   const navigate = useNavigate()
+  // Carried over when someone tried to sign in with an address that has no
+  // account, so they do not retype it.
+  const [params] = useSearchParams()
 
   const [form, setForm] = useState({
-    fullName: '', email: '', studentNumber: '', program: '', campus: '',
+    fullName: '', email: params.get('email') ?? '', studentNumber: '', program: '', campus: '',
     password: '', confirm: '',
   })
   const [error, setError] = useState<string | null>(null)
@@ -131,6 +134,7 @@ export function Register() {
           hint={!form.email ? 'Either @griffithuni.edu.au or @griffith.edu.au.' : undefined}
         >
           <Input id="email" type="email" required autoComplete="username"
+                 autoFocus={!form.email}
                  aria-invalid={Boolean(emailError)}
                  placeholder="s1234567@griffithuni.edu.au"
                  value={form.email} onChange={set('email')} />

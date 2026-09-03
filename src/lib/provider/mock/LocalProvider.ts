@@ -146,9 +146,13 @@ export class LocalProvider implements DataProvider {
     await delay()
     const key = email.trim().toLowerCase()
     const profile = this.db.profiles.find((p) => p.email.toLowerCase() === key)
-    if (!profile) throw new Error('No account exists for that email address.')
+    // Deliberately identical for "no such account" and "wrong password", so the
+    // sign-in form cannot be used to discover who holds an account. Matches
+    // what Supabase returns.
+    if (!profile || this.db.passwords[key] !== password) {
+      throw new Error('Incorrect email or password.')
+    }
     if (!profile.isActive) throw new Error('This account has been deactivated. Contact the School administrator.')
-    if (this.db.passwords[key] !== password) throw new Error('Incorrect password.')
     const s = { userId: profile.id, email: profile.email, profile }
     this.setSession(s)
     return s

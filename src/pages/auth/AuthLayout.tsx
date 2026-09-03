@@ -13,8 +13,8 @@ export function AuthLayout({ title, subtitle, children, footer }: {
     <div className="grid min-h-screen place-items-center bg-ink-50 px-5 py-10">
       <div className="w-full max-w-md">
         <Link to="/" className="mb-7 block text-center">
-          <Brand size={44} className="mx-auto" />
-          <p className="mt-3 text-base font-semibold text-ink-900">Casual Academic Portal</p>
+          <Brand size={44} className="mx-auto mb-3" />
+          <p className="text-base font-semibold text-ink-900">Casual Academic Portal</p>
           <p className="mt-0.5 text-xs text-ink-500">School of ICT · Griffith University</p>
         </Link>
 

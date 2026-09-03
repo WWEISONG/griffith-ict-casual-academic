@@ -4,36 +4,27 @@ import { cn } from '@/lib/utils'
 /**
  * The Griffith University mark.
  *
- * Drop the official asset at `public/griffith-logo.svg` (or .png) and it is
- * used everywhere automatically. Until then this falls back to a neutral
- * wordmark rather than an invented crest — an approximated university logo is
- * worse than none.
+ * Renders `public/griffith-logo.svg` when that file exists. When it does not,
+ * this renders NOTHING and the surrounding text carries the identity.
  *
- * Get the approved asset from Griffith's brand resources; staff have access.
+ * That is deliberate. Earlier versions drew a red tile — first a "G", then the
+ * word "Griffith" — which read as a logo without being one. A stand-in that
+ * imitates a university's brand is worse than no logo: it looks official, and
+ * it is wrong. Griffith's website blocks automated requests, so the real asset
+ * has to come from Griffith's brand resources, which staff can access.
+ *
+ * To add it: save the approved file as `public/griffith-logo.svg`. Nothing
+ * else needs to change.
  */
 export function Brand({ size = 48, className }: { size?: number; className?: string }) {
-  const [failed, setFailed] = useState(false)
-  const src = `${import.meta.env.BASE_URL}griffith-logo.svg`
-
-  if (failed) {
-    return (
-      <span
-        className={cn(
-          'inline-flex items-center justify-center rounded-xl bg-griffith-700 px-3 font-semibold tracking-tight text-white',
-          className,
-        )}
-        style={{ height: size, fontSize: size * 0.3 }}
-      >
-        Griffith
-      </span>
-    )
-  }
+  const [missing, setMissing] = useState(false)
+  if (missing) return null
 
   return (
     <img
-      src={src}
+      src={`${import.meta.env.BASE_URL}griffith-logo.svg`}
       alt="Griffith University"
-      onError={() => setFailed(true)}
+      onError={() => setMissing(true)}
       className={cn('object-contain', className)}
       style={{ height: size, width: 'auto' }}
     />
