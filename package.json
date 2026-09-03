@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Casual Academic (Tutor) Management System \u2014 School of ICT, Griffith University",
+  "description": "Casual Academic (Tutor) Management System — School of ICT, Griffith University",
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.json --noEmit && vite build",
@@ -15,7 +15,7 @@
     "gen:setup": "bash scripts/gen-setup.sh"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.45.4",
+    "@supabase/supabase-js": "^2.114.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "react": "^18.3.1",
