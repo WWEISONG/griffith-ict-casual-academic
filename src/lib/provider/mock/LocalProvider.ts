@@ -384,11 +384,25 @@ export class LocalProvider implements DataProvider {
     if (app.statement.trim().length < 100) throw new Error('Your supporting statement must be at least 100 characters.')
     if (!me.phone?.trim()) throw new Error('Add a contact number before submitting.')
 
-    if (app.status === 'draft') app.status = 'submitted'
+    if (app.status === 'draft') {
+      this.assertApplicantMayChangeStatus(app.status, 'submitted')
+      app.status = 'submitted'
+    }
     app.submittedAt = app.submittedAt ?? new Date().toISOString()
     app.updatedAt = new Date().toISOString()
     this.persist()
     return app
+  }
+
+  /**
+   * Status transitions an applicant may make on their own application.
+   * Mirrors guard_application_status() in the database.
+   */
+  private assertApplicantMayChangeStatus(from: ApplicationStatus, to: ApplicationStatus) {
+    const allowed = (from === 'draft' && to === 'submitted') || to === 'withdrawn'
+    if (!allowed) {
+      throw new Error('Your application status is set by the School, not by you.')
+    }
   }
 
   async withdrawApplication(applicationId: string): Promise<Application> {
@@ -520,6 +534,9 @@ export class LocalProvider implements DataProvider {
 
   async setApplicationStatus(applicationId: string, status: ApplicationStatus) {
     await delay()
+    // Mirrors guard_application_status(): moving an application through review
+    // is staff-only. Applicants may submit a draft or withdraw, and both go
+    // through their own methods.
     this.requireStaff()
     if (!this.canView(applicationId)) throw new Error('You do not have access to this application.')
     const app = this.db.applications.find((a) => a.id === applicationId)

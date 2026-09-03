@@ -170,6 +170,13 @@ async function main() {
   }, draft.id)
   const done = await p.submitApplication(draft.id)
   check('submits once the statement is long enough', done.status === 'submitted')
+  // Regression: the status guard once refused draft -> submitted, because
+  // submitting is itself a status change made by the applicant. Every
+  // application silently stayed a draft, invisible to staff.
+  check('submitting is not blocked by the status guard', done.status === 'submitted')
+
+  await expectReject('a student cannot shortlist themselves', () =>
+    p.setApplicationStatus(draft.id, 'shortlisted'))
   check('submission timestamp is recorded', Boolean(done.submittedAt))
 
   // Re-submitting is now how a student publishes a revision, so it must work.
