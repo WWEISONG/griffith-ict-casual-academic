@@ -114,7 +114,6 @@ export function Register() {
   return (
     <AuthLayout
       title="Apply to tutor"
-      subtitle="For Griffith students, including higher degree research candidates."
       footer={<>Already registered? <Link to="/login" className="font-medium text-griffith-700 hover:underline">Sign in</Link></>}
     >
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
@@ -177,9 +176,10 @@ export function Register() {
           Create account
         </Button>
 
+        {/* Kept, and kept accurate: staff see all candidates, not only those
+            who nominated their own courses. */}
         <p className="text-xs leading-relaxed text-ink-500">
-          Your details are used to assess casual academic applications within the School
-          of ICT and are visible to the convenors of the courses you nominate.
+          Your details are visible to teaching staff in the School of ICT.
         </p>
 
       </form>
