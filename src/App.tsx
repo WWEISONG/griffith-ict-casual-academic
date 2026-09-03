@@ -60,7 +60,7 @@ function PlainChrome({ children, wide }: { children: React.ReactNode; wide?: boo
           <div className="ml-auto flex items-center gap-3">
             <div className="hidden text-right leading-tight sm:block">
               <p className="text-sm font-medium text-ink-900">{profile?.fullName}</p>
-              {role === 'lecturer' && <p className="text-[11px] text-ink-500">Course Convenor</p>}
+              {role === 'lecturer' && <p className="text-[11px] text-ink-500">Course convenor</p>}
             </div>
             <button onClick={() => signOut()}
                     className="rounded-lg px-3 py-1.5 text-sm font-medium text-ink-700 hover:bg-ink-100">
