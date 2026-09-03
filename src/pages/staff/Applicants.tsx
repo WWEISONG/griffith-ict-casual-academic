@@ -6,7 +6,7 @@
 // case of triaging many people at once, and the coverage warning appears here
 // rather than on a separate dashboard nobody would open.
 // ---------------------------------------------------------------------------
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { getProvider } from '@/lib/provider'
 import { useAsync } from '@/hooks/useAsync'
@@ -14,8 +14,8 @@ import { useAuth } from '@/lib/auth/AuthContext'
 import { useToast } from '@/hooks/useToast'
 import { PageHeader } from '@/components/layout/AppShell'
 import { StatusBadge } from '@/components/app/StatusBadge'
-import { Avatar, Badge, Button, Card, EmptyState, ErrorState, Input, LoadingState, Select } from '@/components/ui'
-import { COURSE_BY_CODE } from '@/data/courses'
+import { Avatar, Badge, Button, Card, EmptyState, ErrorState, Input, LoadingState, Modal, Select } from '@/components/ui'
+import { COURSE_BY_CODE, ICT_COURSES } from '@/data/courses'
 import { downloadTextFile, formatDate } from '@/lib/utils'
 import { APPLICATION_STATUS_LABEL, type ApplicantRow, type ApplicationStatus } from '@/types'
 
@@ -43,6 +43,9 @@ export function Applicants() {
 
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [busy, setBusy] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [nonce, setNonce] = useState(0)
+  const [myCourseCodes, setMyCourseCodes] = useState<string[]>([])
 
   const setParam = (k: string, v: string) => {
     const next = new URLSearchParams(params)
@@ -51,26 +54,35 @@ export function Applicants() {
     setSelected(new Set())
   }
 
+  // "__mine" is a scope rather than a course: it expands to whichever courses
+  // this staff member has nominated as theirs.
   const filter = useMemo(() => ({
-    courseCode: courseCode || undefined,
+    courseCode: courseCode && courseCode !== '__mine' ? courseCode : undefined,
+    courseCodes: courseCode === '__mine' ? myCourseCodes : undefined,
     status: status ? [status as ApplicationStatus] : undefined,
     search: search || undefined,
     experiencedOnly: experiencedOnly || undefined,
-  }), [courseCode, status, search, experiencedOnly])
+  }), [courseCode, myCourseCodes, status, search, experiencedOnly])
 
   const state = useAsync(async () => {
-    const [rows, myCourses, demand] = await Promise.all([
+    const [rows, allCourses, myCourses, demand] = await Promise.all([
       provider.listApplicants(filter),
-      isAdmin ? provider.listCourses() : provider.coursesForLecturer(profile!.id),
+      provider.listCourses(),
+      provider.coursesForLecturer(profile!.id),
       provider.getCourseDemand(),
     ])
-    return { rows, myCourses, demand }
-  }, [filter, isAdmin, profile?.id])
+    return { rows, allCourses, myCourses, demand }
+  }, [filter, profile?.id, nonce])
 
   const rows = state.data?.rows ?? []
-  const courses = state.data?.myCourses ?? []
+  const allCourses = state.data?.allCourses ?? ICT_COURSES
+  const myCourses = state.data?.myCourses ?? []
   const covered = new Set((state.data?.demand ?? []).map((d) => d.courseCode))
-  const uncovered = courses.filter((c) => !covered.has(c.code))
+  const uncovered = myCourses.filter((c) => !covered.has(c.code))
+
+  useEffect(() => {
+    if (state.data) setMyCourseCodes(state.data.myCourses.map((c) => c.code))
+  }, [state.data])
 
   const open = (r: ApplicantRow) =>
     navigate(`/app/applicants/${r.applicationId}?course=${r.matchedCourseCode}`)
@@ -135,11 +147,24 @@ export function Applicants() {
 
       {/* Coverage warning lives here, not on a dashboard — this is the page
           convenors actually open. */}
+      {myCourses.length === 0 && !isAdmin && (
+        <div className="mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-ink-200 bg-white px-4 py-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium text-ink-900">Tell us which courses are yours</p>
+            <p className="mt-0.5 text-xs text-ink-600">
+              You can see every applicant in the School. Choosing your courses gives you a
+              one-click filter and warns you when one of them has no applicants.
+            </p>
+          </div>
+          <Button size="sm" onClick={() => setPickerOpen(true)}>Choose courses</Button>
+        </div>
+      )}
+
       {uncovered.length > 0 && (
         <div className="mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-amber-900">
-              {uncovered.length} of your {courses.length} courses {uncovered.length === 1 ? 'has' : 'have'} no applicants
+              {uncovered.length} of your {myCourses.length} courses {uncovered.length === 1 ? 'has' : 'have'} no applicants
             </p>
             <p className="mt-0.5 truncate text-xs text-amber-800">
               {uncovered.slice(0, 6).map((c) => c.code).join(', ')}
@@ -156,10 +181,27 @@ export function Applicants() {
             <Input placeholder="Search name, email or student number…" value={search}
                    onChange={(e) => setParam('q', e.target.value)} aria-label="Search applicants" />
           </div>
-          <Select value={courseCode} onChange={(e) => setParam('course', e.target.value)} aria-label="Filter by course">
-            <option value="">{isAdmin ? 'All courses' : 'All my courses'}</option>
-            {courses.map((c) => <option key={c.code} value={c.code}>{c.code} — {c.title}</option>)}
-          </Select>
+          <div className="flex gap-2">
+            <Select value={courseCode} onChange={(e) => setParam('course', e.target.value)}
+                    aria-label="Filter by course" className="min-w-0 flex-1">
+              <option value="">All courses ({allCourses.length})</option>
+              {myCourses.length > 0 && (
+                <optgroup label="My courses">
+                  <option value="__mine">★ My courses ({myCourses.length})</option>
+                  {myCourses.map((c) => (
+                    <option key={`mine-${c.code}`} value={c.code}>{c.code} — {c.title}</option>
+                  ))}
+                </optgroup>
+              )}
+              <optgroup label="All School of ICT courses">
+                {allCourses.map((c) => <option key={c.code} value={c.code}>{c.code} — {c.title}</option>)}
+              </optgroup>
+            </Select>
+            <Button variant="secondary" onClick={() => setPickerOpen(true)}
+                    title="Choose which courses are yours">
+              My courses
+            </Button>
+          </div>
           <Select value={status} onChange={(e) => setParam('status', e.target.value)} aria-label="Filter by status">
             <option value="">Any status</option>
             {STATUS_OPTIONS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
@@ -209,9 +251,7 @@ export function Applicants() {
          : rows.length === 0 ? (
           <EmptyState
             title="No applicants match"
-            description={courses.length === 0
-              ? 'You are not listed as the convenor of any course yet. Ask the School administrator to assign your courses.'
-              : 'Try clearing a filter, or check back once more applications are submitted.'}
+            description="Try clearing a filter, or check back once more applications are submitted." 
           />
         ) : (
           <div className="overflow-x-auto">
@@ -303,7 +343,75 @@ export function Applicants() {
           </div>
         )}
       </Card>
+      <MyCoursesModal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        lecturerId={profile!.id}
+        current={myCourseCodes}
+        onSaved={() => { setPickerOpen(false); setNonce((n) => n + 1) }}
+      />
     </>
+  )
+}
+
+/**
+ * Lets a staff member nominate the courses they convene. This is a personal
+ * filter, not an access grant — they can see every applicant either way.
+ */
+function MyCoursesModal({ open, onClose, lecturerId, current, onSaved }: {
+  open: boolean; onClose: () => void; lecturerId: string
+  current: string[]; onSaved: () => void
+}) {
+  const provider = getProvider()
+  const { push } = useToast()
+  const [selected, setSelected] = useState<Set<string>>(new Set(current))
+  const [q, setQ] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => { setSelected(new Set(current)) }, [current, open])
+
+  const shown = q
+    ? ICT_COURSES.filter((c) => `${c.code} ${c.title}`.toLowerCase().includes(q.toLowerCase()))
+    : ICT_COURSES
+
+  async function save() {
+    setBusy(true)
+    try {
+      await provider.setCourseLecturers(lecturerId, [...selected])
+      push('success', 'Your courses have been saved.')
+      onSaved()
+    } catch (e) { push('error', (e as Error).message) } finally { setBusy(false) }
+  }
+
+  return (
+    <Modal open={open} wide onClose={onClose} title="My courses"
+           description="Used to filter your view and to warn you when one of your courses has no applicants. You can see all applicants regardless."
+           footer={<>
+             <span className="mr-auto text-sm text-ink-500">{selected.size} selected</span>
+             <Button variant="secondary" onClick={onClose}>Cancel</Button>
+             <Button onClick={save} loading={busy}>Save</Button>
+           </>}>
+      <Input placeholder="Search by code or title…" value={q} onChange={(e) => setQ(e.target.value)}
+             className="mb-3" aria-label="Search courses" autoFocus />
+      <div className="max-h-96 divide-y divide-ink-200 overflow-y-auto rounded-lg border border-ink-200">
+        {shown.map((c) => (
+          <label key={c.code} className="flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-ink-50">
+            <input type="checkbox" checked={selected.has(c.code)}
+                   onChange={(e) => setSelected((s) => {
+                     const next = new Set(s)
+                     if (e.target.checked) next.add(c.code); else next.delete(c.code)
+                     return next
+                   })}
+                   className="h-4 w-4 rounded border-ink-300 text-griffith-700 focus:ring-griffith-600" />
+            <span className="min-w-0">
+              <span className="text-sm font-medium text-ink-900">{c.code}</span>
+              <span className="ml-2 text-sm text-ink-600">{c.title}</span>
+            </span>
+          </label>
+        ))}
+        {shown.length === 0 && <p className="px-3 py-6 text-center text-sm text-ink-500">No courses match.</p>}
+      </div>
+    </Modal>
   )
 }
 

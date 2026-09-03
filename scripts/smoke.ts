@@ -60,39 +60,38 @@ async function main() {
   const courses = await p.listCourses()
   check('full ICT catalogue is loaded', courses.length === 187, `${courses.length} courses`)
 
-  console.log('\nConvenor scope — the security-critical case')
+  console.log('\nStaff scope — all staff see all applicants')
   const lec1 = await p.signIn('a.nguyen@griffith.edu.au', LOCAL_PASSWORD)
   check('convenor can sign in', lec1.profile.role === 'lecturer')
 
-  const myCourses = await p.coursesForLecturer(lec1.userId)
-  const myCodes = new Set(myCourses.map((c) => c.code))
   const lecRows = await p.listApplicants({})
-  check('convenor sees some applicants', lecRows.length > 0, `${lecRows.length} rows`)
-  check('convenor sees ONLY their own courses',
-        lecRows.every((r) => myCodes.has(r.matchedCourseCode)),
-        `leaked: ${lecRows.filter((r) => !myCodes.has(r.matchedCourseCode)).map((r) => r.matchedCourseCode).join(', ')}`)
-  check('convenor sees fewer rows than the administrator', lecRows.length < allApplicants.length,
-        `${lecRows.length} vs ${allApplicants.length}`)
+  check('convenor sees every applicant, as the School decided',
+        lecRows.length === allApplicants.length, `${lecRows.length} vs ${allApplicants.length}`)
 
-  // A convenor for cyber security courses must not reach a programming applicant.
-  const lec2 = await p.signIn('m.patel@griffith.edu.au', LOCAL_PASSWORD)
-  const lec2Rows = await p.listApplicants({})
-  const lec1Ids = new Set(lecRows.map((r) => r.applicationId))
-  const lec2Only = lec2Rows.filter((r) => !lec1Ids.has(r.applicationId))
-  check('a second convenor sees a different applicant set', lec2Only.length > 0)
+  // Course selection is a personal filter now, not a permission boundary.
+  await p.setCourseLecturers(lec1.userId, ['1811ICT', '2801ICT'])
+  const filtered = await p.listApplicants({ courseCodes: ['1811ICT', '2801ICT'] })
+  check('"My courses" narrows the view', filtered.length > 0 && filtered.length < lecRows.length,
+        `${filtered.length} of ${lecRows.length}`)
+  check('the filter returns only the chosen courses',
+        filtered.every((r) => ['1811ICT', '2801ICT'].includes(r.matchedCourseCode)))
 
-  const foreign = allApplicants.find((r) => !lec2Rows.some((x) => x.applicationId === r.applicationId))
-  if (foreign) {
-    await expectReject('convenor cannot open an application outside their courses', () =>
-      p.getApplicationDetail(foreign.applicationId))
-  }
+  const anyApplication = allApplicants[0]
+  const detail = await p.getApplicationDetail(anyApplication.applicationId)
+  check('convenor can open any submitted application', detail !== null)
 
-  await expectReject('convenor cannot allocate to a course they do not convene', () =>
-    p.createAssignment({ profileId: 'u_s1', courseCode: '3808ICT', year: 2027, trimester: 1,
-                         role: 'tutor', hoursPerWeek: 6, status: 'proposed' }))
+  // Boundaries that still hold.
+  const drafts = lecRows.filter((r) => r.status === 'draft')
+  check('drafts remain invisible to staff', drafts.length === 0)
 
   await expectReject('convenor cannot create staff accounts', () =>
     p.createStaffAccount({ email: 'x@griffith.edu.au', fullName: 'X', role: 'admin', password: 'password123' }))
+
+  await expectReject('convenor cannot change another lecturer\'s course selection', () =>
+    p.setCourseLecturers('u_lec2', ['7905ICT']))
+
+  await expectReject('convenor cannot deactivate an account', () =>
+    p.setProfileActive('u_s1', false))
 
   console.log('\nStudent flow')
   const stu = await p.signIn('liam.chen@griffithuni.edu.au', LOCAL_PASSWORD)

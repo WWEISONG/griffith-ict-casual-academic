@@ -86,7 +86,7 @@ flowchart LR
     end
 
     subgraph convenor["Course convenor"]
-        c1["See applicants for<br/>MY courses only"] --> c2["Compare: preference,<br/>prior teaching, GPA,<br/>current load"] --> c3["Shortlist"] --> c4["Email applicant"] --> c5["Allocate tutor"]
+        c1["See all applicants<br/>filter to my courses"] --> c2["Compare: preference,<br/>prior teaching, GPA,<br/>current load"] --> c3["Shortlist"] --> c4["Email applicant"] --> c5["Allocate tutor"]
     end
 
     subgraph admin["Administrator"]
@@ -102,13 +102,21 @@ flowchart LR
 | | Student | Convenor | Administrator |
 |---|---|---|---|
 | Own application | read / write | — | read |
-| Other applications | — | **only for courses they convene** | all |
-| Applicant contact details | own | for their courses | all |
-| Review notes | **never** | their courses | all |
-| Allocate tutors | — | their courses | all |
+| Other applications | — | all submitted (drafts excluded) | all |
+| Applicant contact details | own | all applicants | all |
+| Review notes | **never** | all | all |
+| Allocate tutors | — | any course, recorded against them | all |
 | Manage accounts & rounds | — | — | yes |
 
-The convenor restriction is enforced in the database, not the interface.
+Staff access is School-wide by decision of the School: no reliable
+convenor-to-course map exists, and requiring one would have prevented the
+system being used at all. Course selection remains, as a personal filter.
+
+What is still enforced in the database, not the interface: students see only
+their own records, drafts are never visible to staff, review notes are never
+visible to applicants, and only administrators manage accounts, courses and
+rounds. Every view and contact is attributable via `contact_log` and
+`audit_log`.
 
 ---
 
@@ -200,7 +208,7 @@ flowchart TB
     B["Browser<br/>anon key + user JWT"] --> PR["PostgREST"]
     PR --> RLS{"Row Level Security<br/>evaluated per row"}
     RLS -->|"id = auth.uid()"| OWN["Own records"]
-    RLS -->|"teaches_course(code)"| MINE["Applicants for<br/>my courses"]
+    RLS -->|"is_staff()"| MINE["All submitted<br/>applications"]
     RLS -->|"is_admin()"| ALL["Everything"]
     RLS -->|"otherwise"| NO["Zero rows returned"]
 

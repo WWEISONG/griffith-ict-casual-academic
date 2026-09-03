@@ -49,7 +49,9 @@ hands off. This keeps V1 free of HR-system integration.
   across screens added navigation without adding value.
 
 ### Course convenors
-- See applicants for their courses only — enforced in the database.
+- See **all** applicants across the School. Course selection is a personal
+  filter (a dropdown), not a permission boundary — the School has no reliable
+  convenor-to-course map, and requiring one would have blocked launch.
 - Full application, contact details, teaching history, current workload.
 - One-click email with the message pre-written; contact is logged so two
   convenors do not chase the same candidate unknowingly.
@@ -100,6 +102,7 @@ RLS policies are plain PostgreSQL and carry across to RDS unchanged.
 | Experience separate from applications | A teaching record belongs to the person and persists across trimesters. |
 | Allocations separate from applications | An accepted application is a decision; an allocation is an operational fact with hours and a trimester. Conflating them makes multi-course tutors unrepresentable. |
 | Contact happens over email, not in-app | Convenors and candidates already live in email, and a message from a convenor's own address carries more weight than a system notification. The system pre-writes the message and opens their mail client; it does not try to become an inbox. This also avoids needing a sending domain approved by Griffith IT. |
+| All staff see all applicants | Maintaining a convenor-to-course map across 187 courses every trimester is not feasible, and until it existed nobody could see anything. Staff choose their courses as a filter instead. Every view and contact stays attributable through `contact_log` and `audit_log`. |
 | `contact_log` table | Because contact happens outside the system, a log is what stops two convenors approaching the same candidate unknowingly. |
 | Hash routing | Static hosting cannot rewrite unknown paths to `index.html`; deep links would 404 on refresh. Switch to path routing after the AWS move. |
 | T1 / T2 / T3 shorthand | Griffith runs trimesters. Constrained to `1|2|3` in the schema so "Semester 1" cannot appear in the data later. |

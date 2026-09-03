@@ -52,6 +52,8 @@ export interface ApplicationDraft {
 export interface ApplicantFilter {
   roundId?: string
   courseCode?: string
+  /** Narrow to a set of courses — used by the "My courses" filter. */
+  courseCodes?: string[]
   status?: ApplicationStatus[]
   /** Free-text across name, email, student number. */
   search?: string

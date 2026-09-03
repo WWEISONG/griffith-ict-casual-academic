@@ -116,10 +116,12 @@ export class LocalProvider implements DataProvider {
     return this.session?.profile.role === 'admin'
   }
 
-  /** Course codes the current user may recruit for. Admins: all. */
+  /**
+   * Courses the current user has nominated as theirs. A personal filter used
+   * for the default view and the coverage warning — NOT an access boundary.
+   */
   private myCourseCodes(): string[] {
     const me = this.me()
-    if (me.role === 'admin') return ICT_COURSES.map((c) => c.code)
     return this.db.courseLecturers.filter((cl) => cl.lecturerId === me.id).map((cl) => cl.courseCode)
   }
 
@@ -131,10 +133,10 @@ export class LocalProvider implements DataProvider {
     const app = this.db.applications.find((a) => a.id === applicationId)
     if (!app) return false
     if (app.applicantId === me.id) return true
+    // Staff may view any submitted application. Course selection is a personal
+    // filter, not a permission boundary. Drafts stay private to the applicant.
     if (me.role !== 'lecturer') return false
-    if (app.status === 'draft') return false
-    const mine = new Set(this.myCourseCodes())
-    return app.preferences.some((p) => mine.has(p.courseCode))
+    return app.status !== 'draft'
   }
 
   // --- Auth ---------------------------------------------------------------
@@ -218,15 +220,13 @@ export class LocalProvider implements DataProvider {
     await delay()
     this.requireStaff()
     if (!this.isAdmin()) {
-      // Lecturers see staff plus their own applicants.
-      const visibleIds = new Set(
-        this.db.applications
-          .filter((a) => this.canView(a.id))
-          .map((a) => a.applicantId),
+      // Staff see other staff, plus anyone who has submitted an application.
+      const applicantIds = new Set(
+        this.db.applications.filter((a) => a.status !== 'draft').map((a) => a.applicantId),
       )
-      return this.db.profiles.filter(
-        (p) => p.role !== 'student' || visibleIds.has(p.id),
-      ).filter((p) => !role || p.role === role)
+      return this.db.profiles
+        .filter((p) => p.role !== 'student' || applicantIds.has(p.id))
+        .filter((p) => !role || p.role === role)
     }
     return this.db.profiles.filter((p) => !role || p.role === role)
   }
@@ -277,7 +277,11 @@ export class LocalProvider implements DataProvider {
 
   async setCourseLecturers(lecturerId: string, courseCodes: string[]) {
     await delay()
-    if (!this.isAdmin()) throw new Error('Only an administrator may assign course convenors.')
+    const me = this.me()
+    // Staff maintain their own selection; admins may adjust anyone's.
+    if (lecturerId !== me.id && !this.isAdmin()) {
+      throw new Error('You may only change your own course selection.')
+    }
     this.db.courseLecturers = this.db.courseLecturers.filter((cl) => cl.lecturerId !== lecturerId)
     for (const code of courseCodes) {
       this.db.courseLecturers.push({ courseCode: code, lecturerId, isConvenor: true })
@@ -432,7 +436,6 @@ export class LocalProvider implements DataProvider {
   async listApplicants(filter: ApplicantFilter): Promise<ApplicantRow[]> {
     await delay()
     this.requireStaff()
-    const mine = new Set(this.myCourseCodes())
     const rows: ApplicantRow[] = []
 
     for (const app of this.db.applications) {
@@ -452,9 +455,9 @@ export class LocalProvider implements DataProvider {
       if (filter.degreeLevel && applicant.degreeLevel !== filter.degreeLevel) continue
 
       for (const pref of app.preferences) {
-        // A lecturer only sees the rows for courses they actually teach.
-        if (!mine.has(pref.courseCode)) continue
         if (filter.courseCode && pref.courseCode !== filter.courseCode) continue
+        // `courseCodes` narrows to a set — used by the "My courses" filter.
+        if (filter.courseCodes?.length && !filter.courseCodes.includes(pref.courseCode)) continue
 
         const priorTimesTaught = this.db.experience.filter(
           (e) => e.profileId === applicant.id && e.courseCode === pref.courseCode,
@@ -568,9 +571,6 @@ export class LocalProvider implements DataProvider {
   async createAssignment(input: Omit<Assignment, 'id' | 'assignedById' | 'createdAt'>): Promise<Assignment> {
     await delay()
     const me = this.requireStaff()
-    if (!this.myCourseCodes().includes(input.courseCode)) {
-      throw new Error('You may only allocate tutors to courses you convene.')
-    }
     const clash = this.db.assignments.find(
       (a) => a.profileId === input.profileId && a.courseCode === input.courseCode
         && a.year === input.year && a.trimester === input.trimester,
@@ -589,9 +589,6 @@ export class LocalProvider implements DataProvider {
     this.requireStaff()
     const a = this.db.assignments.find((x) => x.id === id)
     if (!a) throw new Error('Allocation not found.')
-    if (!this.myCourseCodes().includes(a.courseCode)) {
-      throw new Error('You may only change allocations for courses you convene.')
-    }
     Object.assign(a, patch)
     this.persist()
     return a
