@@ -138,7 +138,12 @@ def picture(s, name, l, t, w):
 
 
 def notes(s, text):
-    s.notes_slide.notes_text_frame.text = text
+    """No-op: the author does not want speaker notes in this deck.
+
+    Kept as a call site so the intent of each slide stays recorded next to it,
+    and so notes can be reinstated by restoring one line.
+    """
+    return
 
 
 # ============================================================ 1. Title
