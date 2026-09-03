@@ -31,7 +31,6 @@ function Icon({ path }: { path: ReactNode }) {
 // trimester; every extra nav item is something they have to think about.
 const ADMIN_NAV: NavItem[] = [
   { to: '/app', label: 'All candidates', icon: <Icon path={I.users} />, end: true },
-  { to: '/app/allocations', label: 'Allocations', icon: <Icon path={I.clip} /> },
   { to: '/app/people', label: 'Accounts', icon: <Icon path={I.cog} /> },
 ]
 

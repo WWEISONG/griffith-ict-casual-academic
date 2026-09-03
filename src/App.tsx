@@ -11,7 +11,6 @@ import { Register } from '@/pages/auth/Register'
 import { StudentPortal } from '@/pages/student/StudentPortal'
 import { FindTutor } from '@/pages/staff/FindTutor'
 import { PersonDetail } from '@/pages/staff/PersonDetail'
-import { Allocations } from '@/pages/staff/Allocations'
 import { People } from '@/pages/admin/People'
 
 /** Blocks a route until the session is known, then enforces the role. */
@@ -92,8 +91,6 @@ function Router() {
       {/* Staff */}
       <Route path="/app/people/:id" element={
         <Protected allow={['lecturer', 'admin']}><Shell><PersonDetail /></Shell></Protected>} />
-      <Route path="/app/allocations" element={
-        <Protected allow={['lecturer', 'admin']}><Shell><Allocations /></Shell></Protected>} />
 
       {/* Administration */}
       <Route path="/app/people" element={

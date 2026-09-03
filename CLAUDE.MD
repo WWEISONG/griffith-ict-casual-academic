@@ -105,6 +105,7 @@ RLS policies are plain PostgreSQL and carry across to RDS unchanged.
 | Experience separate from applications | A teaching record belongs to the person and persists across trimesters. |
 | Allocations separate from applications | An accepted application is a decision; an allocation is an operational fact with hours and a trimester. Conflating them makes multi-course tutors unrepresentable. |
 | Contact happens over email, not in-app | Convenors and candidates already live in email, and a message from a convenor's own address carries more weight than a system notification. The system pre-writes the message and opens their mail client; it does not try to become an inbox. This also avoids needing a sending domain approved by Griffith IT. |
+| No allocation management | The system's job is to tell a convenor who exists, what they have taught and what they have applied for. Who ends up rostered on which course is settled elsewhere, so an allocation screen only invited a second, incomplete record of it. |
 | Applications are always open | Gating on an administrator-opened "recruitment round" meant students could not register interest when they were thinking about it, and anyone who had submitted was frozen out until a new round opened. One standing application per student, revisable at any time, matches how the School actually recruits. Trimester still matters, but on allocations, where it belongs. |
 | All staff see all applicants | Maintaining a convenor-to-course map across 187 courses every trimester is not feasible, and until it existed nobody could see anything. Staff choose their courses as a filter instead. Every view and contact stays attributable through `contact_log` and `audit_log`. |
 | `contact_log` table | Because contact happens outside the system, a log is what stops two convenors approaching the same candidate unknowingly. |
@@ -138,6 +139,17 @@ RLS policies are plain PostgreSQL and carry across to RDS unchanged.
   Site is marked `noindex, nofollow`.
 - **When migrating to AWS**, the repository can be made private and the
   application placed behind the Griffith network or an identity-aware proxy.
+
+---
+
+## Unused, retained
+
+Two features exist in the database but not in the interface, kept so they can
+return without a schema change:
+
+- `recruitment_rounds` — applications are always open (migration 0006).
+- `assignments` — tutor allocation. The system is positioned as a pool for
+  finding tutors, not a roster for managing them; allocation happens elsewhere.
 
 ---
 

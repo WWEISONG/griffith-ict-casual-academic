@@ -12,7 +12,7 @@ import { getProvider } from '@/lib/provider'
 import { useAsync } from '@/hooks/useAsync'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { useToast } from '@/hooks/useToast'
-import { StatusBadge, AssignmentBadge } from '@/components/app/StatusBadge'
+import { StatusBadge } from '@/components/app/StatusBadge'
 import {
   Badge, Button, Card, CardHeader, EmptyState, ErrorState, Field, Input,
   LoadingState, Meter, Modal, Select, Textarea,
@@ -34,12 +34,11 @@ export function StudentPortal() {
   const { push } = useToast()
 
   const state = useAsync(async () => {
-    const [apps, experience, assignments] = await Promise.all([
+    const [apps, experience] = await Promise.all([
       provider.myApplications(),
       provider.myExperience(),
-      provider.listAssignments(),
     ])
-    return { apps, experience, assignments }
+    return { apps, experience }
   }, [])
 
   // One standing application per student, editable at any time.
@@ -62,13 +61,12 @@ export function StudentPortal() {
   if (state.loading) return <div className="mx-auto max-w-4xl px-5 py-10"><LoadingState /></div>
   if (state.error) return <div className="mx-auto max-w-4xl px-5 py-10"><ErrorState message={state.error} onRetry={state.reload} /></div>
 
-  const { experience, assignments } = state.data!
+  const { experience } = state.data!
   // Applications stay editable so they can be kept current as experience grows.
   const readOnly = false
   const submitted = Boolean(existing && existing.status !== 'draft')
   const statementChars = statement.trim().length
   const usedCodes = new Set(prefs.map((p) => p.courseCode).filter(Boolean))
-  const ongoing = assignments.filter((a) => a.status === 'confirmed' || a.status === 'proposed')
 
   const canSubmit = prefs.filter((p) => p.courseCode).length > 0
     && statementChars >= MIN_STATEMENT && hours > 0 && days.length > 0
@@ -116,27 +114,6 @@ export function StudentPortal() {
           {existing && <StatusBadge status={existing.status} />}
         </div>
       </div>
-
-      {/* Current allocations, if any — shown above the form because it is the
-          first thing a returning tutor wants to see. */}
-      {ongoing.length > 0 && (
-        <Card className="mb-5">
-          <CardHeader title="Courses you are tutoring" />
-          <ul className="divide-y divide-ink-200">
-            {ongoing.map((a) => (
-              <li key={a.id} className="flex flex-wrap items-center gap-3 px-5 py-3.5">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-ink-900">{courseLabel(a.courseCode)}</p>
-                  <p className="mt-0.5 text-xs text-ink-500">
-                    {trimesterShort(a.year, a.trimester)} · {TUTOR_ROLE_LABEL[a.role]} · {a.hoursPerWeek} hrs/week
-                  </p>
-                </div>
-                <AssignmentBadge status={a.status} />
-              </li>
-            ))}
-          </ul>
-        </Card>
-      )}
 
       <>
           {error && (

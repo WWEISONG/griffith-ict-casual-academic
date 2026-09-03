@@ -22,10 +22,9 @@ export function PersonDetail() {
   const navigate = useNavigate()
 
   const state = useAsync(async () => {
-    const [person, experience, assignments] = await Promise.all([
+    const [person, experience] = await Promise.all([
       provider.getProfile(id!),
       provider.studentExperience(id!),
-      provider.listAssignments({ profileId: id! }),
     ])
     // Their application, if they have one.
     const rows = await provider.listStudents()
@@ -33,15 +32,14 @@ export function PersonDetail() {
     const application = row?.applicationId
       ? await provider.getApplicationDetail(row.applicationId)
       : null
-    return { person, experience, assignments, application, row }
+    return { person, experience, application, row }
   }, [id])
 
   if (state.loading) return <LoadingState />
   if (state.error) return <ErrorState message={state.error} onRetry={state.reload} />
   if (!state.data?.person) return <EmptyState title="Candidate not found" />
 
-  const { person, experience, assignments, application, row } = state.data
-  const active = assignments.filter((a) => a.status !== 'cancelled')
+  const { person, experience, application, row } = state.data
 
   const emailBody = [
     `Dear ${person.fullName.split(' ')[0]},`,
@@ -209,23 +207,6 @@ export function PersonDetail() {
             </Card>
           )}
 
-          <Card>
-            <CardHeader title="Current allocations" description="Across the School" />
-            {active.length === 0 ? (
-              <EmptyState title="Not currently allocated" />
-            ) : (
-              <ul className="divide-y divide-ink-200">
-                {active.map((a) => (
-                  <li key={a.id} className="px-5 py-3">
-                    <p className="text-sm font-medium text-ink-900">{a.courseCode}</p>
-                    <p className="text-xs text-ink-500">
-                      {trimesterShort(a.year, a.trimester)} · {TUTOR_ROLE_LABEL[a.role]} · {a.hoursPerWeek} hrs/week
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Card>
         </div>
       </div>
     </>

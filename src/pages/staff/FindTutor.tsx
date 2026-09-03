@@ -123,7 +123,6 @@ export function FindTutor() {
                   <th scope="col" className="px-4 py-2.5">Candidate</th>
                   <th scope="col" className="px-4 py-2.5">Teaching experience</th>
                   <th scope="col" className="px-4 py-2.5">Applied courses</th>
-                  <th scope="col" className="px-4 py-2.5 text-center">Load</th>
                   <th scope="col" className="px-4 py-2.5"></th>
                 </tr>
               </thead>
@@ -177,11 +176,6 @@ function StudentLine({ row, course, onOpen }: {
       </td>
       <td className="px-4 py-3"><CourseChips codes={row.tutoredCourses} tone="success" /></td>
       <td className="px-4 py-3"><CourseChips codes={row.appliedCourses} tone="info" /></td>
-      <td className="px-4 py-3 text-center">
-        <span className={row.currentLoadHours >= 12 ? 'font-semibold text-amber-700' : 'text-ink-600'}>
-          {row.currentLoadHours > 0 ? `${row.currentLoadHours}h` : '—'}
-        </span>
-      </td>
       <td className="px-4 py-3 text-right">
         {row.applicationId
           ? <span className="text-xs text-ink-500">Applied {formatDate(row.appliedAt)}</span>
