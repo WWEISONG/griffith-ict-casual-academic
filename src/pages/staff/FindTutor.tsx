@@ -13,8 +13,8 @@ import { useAsync } from '@/hooks/useAsync'
 import { useToast } from '@/hooks/useToast'
 import { PageHeader } from '@/components/layout/AppShell'
 import { Avatar, Badge, Button, Card, EmptyState, ErrorState, Input, LoadingState, Select } from '@/components/ui'
-import { ICT_COURSES, COURSE_BY_CODE } from '@/data/courses'
-import { downloadTextFile, formatDate, mailto } from '@/lib/utils'
+import { ICT_COURSES } from '@/data/courses'
+import { downloadTextFile, formatDate } from '@/lib/utils'
 import type { StudentRow } from '@/types'
 
 type Relation = 'any' | 'tutored' | 'applied'
@@ -68,12 +68,6 @@ export function FindTutor() {
     } catch (e) { push('error', (e as Error).message) }
   }
 
-  function emailAll() {
-    const list = [...new Set(rows.map((r) => r.email))].join(',')
-    const subject = course ? `Tutoring — ${COURSE_BY_CODE[course]?.code ?? course}` : 'ICT tutoring'
-    window.location.href = `mailto:?bcc=${encodeURIComponent(list)}&subject=${encodeURIComponent(subject)}`
-  }
-
   const experienced = rows.filter((r) => r.timesTutored > 0).length
 
   return (
@@ -81,10 +75,9 @@ export function FindTutor() {
       <PageHeader
         title="All candidates"
         action={
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={emailAll} disabled={rows.length === 0}>Email these</Button>
-            <Button variant="secondary" onClick={exportCsv} disabled={rows.length === 0}>Export CSV</Button>
-          </div>
+          <Button variant="secondary" onClick={exportCsv} disabled={rows.length === 0}>
+            Export CSV
+          </Button>
         }
       />
 

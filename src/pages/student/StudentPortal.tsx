@@ -54,15 +54,10 @@ export function StudentPortal() {
   const [error, setError] = useState<string | null>(null)
   const [expOpen, setExpOpen] = useState(false)
 
-  useEffect(() => {
-    if (!existing) return
-    setStatement(existing.statement)
-    setHours(existing.hoursPerWeek || 8)
-    setDays(existing.availableDays ?? [])
-    setResumeUrl(existing.resumeUrl ?? '')
-    setPrefs(existing.preferences.slice().sort((a, b) => a.rank - b.rank)
-      .map((p) => ({ courseCode: p.courseCode, confidence: p.confidence, note: p.note ?? '' })))
-  }, [existing])
+  // The form deliberately starts empty on every visit. A previous application
+  // is not loaded back in: people apply for a trimester at a time, and editing
+  // last time's answers in place invites stale statements and course choices
+  // nobody re-read. Submitting replaces whatever was there.
 
   if (state.loading) return <div className="mx-auto max-w-4xl px-5 py-10"><LoadingState /></div>
   if (state.error) return <div className="mx-auto max-w-4xl px-5 py-10"><ErrorState message={state.error} onRetry={state.reload} /></div>
@@ -96,7 +91,7 @@ export function StudentPortal() {
 
       if (thenSubmit) {
         await provider.submitApplication(saved.id)
-        push('success', submitted ? 'Your application has been updated.' : 'Your application has been submitted.')
+        push('success', 'Your application has been submitted.')
       } else {
         push('success', 'Saved. You can come back and finish it any time.')
       }
@@ -117,10 +112,6 @@ export function StudentPortal() {
             <h1 className="text-3xl font-semibold tracking-tight text-ink-900">
               Casual academic application
             </h1>
-            <p className="mt-2 text-base leading-relaxed text-ink-600">
-              Tell us which courses you would like to tutor. You can update this
-              at any time as you gain experience.
-            </p>
           </div>
           {existing && <StatusBadge status={existing.status} />}
         </div>
@@ -148,14 +139,6 @@ export function StudentPortal() {
       )}
 
       <>
-          {submitted && (
-            <div className="mb-5 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-relaxed text-sky-900">
-              Submitted on {formatDate(existing!.submittedAt)}. Convenors can see your
-              application and will email you directly if they would like to take it
-              further. You can keep it up to date below — changes are saved immediately.
-            </div>
-          )}
-
           {error && (
             <div role="alert" className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
               {error}
@@ -364,10 +347,17 @@ export function StudentPortal() {
             </Section>
 
             {/* Submit ----------------------------------------------------- */}
-            <div className="flex justify-end">
+            <div className="flex flex-wrap items-center justify-end gap-4">
+              {submitted && (
+                /* Not a warning, a fact: submitting overwrites the previous
+                   application, and nobody should discover that afterwards. */
+                <p className="text-sm text-ink-500">
+                  Replaces your application from {formatDate(existing!.submittedAt)}.
+                </p>
+              )}
               <Button size="lg" onClick={() => save(true)}
                       loading={saving === 'submitting'} disabled={!canSubmit}>
-                {submitted ? 'Update application' : 'Submit application'}
+                Submit application
               </Button>
             </div>
           </div>

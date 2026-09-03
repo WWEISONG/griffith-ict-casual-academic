@@ -355,8 +355,21 @@ export class LocalProvider implements DataProvider {
       return app
     }
 
-    if (this.db.applications.some((a) => a.applicantId === me.id)) {
-      throw new Error('You already have an application.')
+    // One standing application per person: a fresh submission replaces the
+    // previous one rather than being rejected as a duplicate.
+    const prior = this.db.applications.find((a) => a.applicantId === me.id)
+    if (prior) {
+      prior.statement = draft.statement
+      prior.hoursPerWeek = draft.hoursPerWeek
+      prior.availableDays = draft.availableDays
+      prior.resumeUrl = draft.resumeUrl ?? null
+      prior.preferences = draft.preferences.map((p, i) => ({
+        id: `pref_${prior.id}_${i}`, applicationId: prior.id,
+        courseCode: p.courseCode, rank: p.rank, confidence: p.confidence, note: p.note ?? null,
+      }))
+      prior.updatedAt = now
+      this.persist()
+      return prior
     }
     const id = uid('app')
     const app: Application = {

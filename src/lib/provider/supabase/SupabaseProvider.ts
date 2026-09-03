@@ -331,12 +331,19 @@ export class SupabaseProvider implements DataProvider {
     }
 
     let id = applicationId
+    if (!id) {
+      // One standing application per person: a new submission replaces the
+      // previous one rather than being rejected as a duplicate.
+      const { data: existing } = await this.db.from('applications')
+        .select('id').eq('applicant_id', auth.user.id).maybeSingle()
+      id = existing?.id
+    }
     if (id) {
       const { error } = await this.db.from('applications').update(body).eq('id', id)
       if (error) explain(error, 'Could not save your application.')
     } else {
       const { data, error } = await this.db.from('applications')
-        .insert({ ...body, applicant_id: auth.user.id, round_id: draft.roundId, status: 'draft' })
+        .insert({ ...body, applicant_id: auth.user.id, status: 'draft' })
         .select('id').single()
       if (error) explain(error, 'Could not create your application.')
       id = data.id
@@ -529,7 +536,8 @@ export class SupabaseProvider implements DataProvider {
     return {
       ...toApplication(app),
       applicant: toProfile((app as any).profiles),
-      round: toRound((app as any).recruitment_rounds),
+      // Applications are no longer scoped to a round, so this is normally null.
+      round: (app as any).recruitment_rounds ? toRound((app as any).recruitment_rounds) : null,
       experience: (exp.data ?? []).map(toExperience),
       currentAssignments: (asg.data ?? []).map(toAssignment),
       notes: (notes.data ?? []).map((n: any) => ({
