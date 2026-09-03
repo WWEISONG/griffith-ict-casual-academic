@@ -185,10 +185,7 @@ function StudentLine({ row, course, onOpen }: {
                className="block truncate text-xs text-griffith-700 hover:underline">
               {row.email}
             </a>
-            <p className="truncate text-xs text-ink-500">
-              {row.program ?? '—'}
-              {row.lastTaughtYear ? ` · last taught ${row.lastTaughtYear}` : ''}
-            </p>
+            <p className="truncate text-xs text-ink-500">{row.program ?? '—'}</p>
           </div>
         </div>
       </td>

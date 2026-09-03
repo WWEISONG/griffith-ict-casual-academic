@@ -206,11 +206,18 @@ async function main() {
   check('the original submission date is preserved',
         resubmitted.submittedAt === done.submittedAt)
 
-  await expectReject('a student cannot hold two applications', () =>
-    p.saveApplication({
-      statement: 'x'.repeat(150), hoursPerWeek: 4, availableDays: ['Mon'],
-      preferences: [{ courseCode: '1001ICT', rank: 1, confidence: 3 }],
-    }))
+  // The form starts blank each visit, so a fresh submission must replace the
+  // standing application rather than be rejected as a duplicate.
+  const replaced = await p.saveApplication({
+    statement: 'A completely fresh application, replacing the previous one, long enough to satisfy the hundred character minimum.',
+    hoursPerWeek: 4, availableDays: ['Mon'],
+    preferences: [{ courseCode: '1001ICT', rank: 1, confidence: 3 }],
+  })
+  check('a fresh submission replaces the standing application',
+        replaced.preferences.length === 1 && replaced.preferences[0].courseCode === '1001ICT')
+  const afterReplace = await p.myApplications()
+  check('the student still has exactly one application', afterReplace.length === 1,
+        `${afterReplace.length}`)
 
   console.log(`\n${passed} passed, ${failed} failed\n`)
   if (failed > 0) process.exit(1)

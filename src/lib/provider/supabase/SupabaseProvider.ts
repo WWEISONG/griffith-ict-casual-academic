@@ -465,11 +465,11 @@ export class SupabaseProvider implements DataProvider {
     const rows = await this.listStudents(search)
     return toCsv(
       ['Name', 'Student number', 'Email', 'Phone', 'Program', 'Level', 'Campus',
-       'Times tutored', 'Courses tutored', 'Last taught', 'Applied', 'Current load (hrs)'],
+       'Times tutored', 'Courses tutored', 'Applied', 'Current load (hrs)'],
       rows.map((r) => [
         r.fullName, r.studentNumber ?? '', r.email, r.phone ?? '', r.program ?? '',
         r.degreeLevel ?? '', r.campus ?? '', r.timesTutored, r.coursesTutored,
-        r.lastTaughtYear ?? '', r.appliedAt ? 'Yes' : 'No', r.currentLoadHours,
+        r.appliedAt ? 'Yes' : 'No', r.currentLoadHours,
       ]),
     )
   }
