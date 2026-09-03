@@ -10,9 +10,9 @@
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.scripts.json --noEmit",
     "lint": "eslint . --ext .ts,.tsx",
-    "gen:courses": "tsx scripts/generate-course-sql.ts",
     "bootstrap": "tsx scripts/bootstrap.ts",
-    "smoke": "tsx scripts/smoke.ts"
+    "smoke": "tsx scripts/smoke.ts",
+    "gen:setup": "bash scripts/gen-setup.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

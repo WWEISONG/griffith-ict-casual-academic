@@ -45,14 +45,18 @@ data in Australia matters for university privacy obligations.
 
 ### 2. Apply the schema
 
-In the Supabase dashboard, open **SQL Editor** and run these files in order:
+Copy the whole setup file to your clipboard:
 
+```bash
+cat supabase/setup.sql | pbcopy      # macOS
 ```
-supabase/migrations/0001_schema.sql     -- tables, types, constraints
-supabase/migrations/0002_functions.sql  -- triggers, auth helpers, views
-supabase/migrations/0003_rls.sql        -- row level security policies
-supabase/seed/0001_courses.sql          -- 187 ICT courses
-```
+
+Then in the Supabase dashboard open **SQL Editor → New query**, paste, and
+press **Run**. That creates 11 tables, 36 row-level-security policies and the
+187-course catalogue in one step. It is safe to re-run.
+
+(The file is generated from `supabase/migrations/*` and `supabase/seed/*`;
+regenerate it with `npm run gen:setup` after changing those.)
 
 ### 3. Configure credentials
 
