@@ -79,13 +79,15 @@ function Router() {
 
   return (
     <Routes>
+      {/* Neither entrance redirects a signed-in visitor: each says who is
+          signed in and offers to continue or sign out. */}
       <Route path="/" element={
         loading ? <div className="grid min-h-screen place-items-center"><LoadingState /></div>
-                : session ? <Navigate to="/app" replace /> : <Landing />
+                : <Landing />
       } />
       <Route path="/staff" element={
         loading ? <div className="grid min-h-screen place-items-center"><LoadingState /></div>
-                : session ? <Navigate to="/app" replace /> : <StaffLanding />
+                : <StaffLanding />
       } />
       <Route path="/login" element={session ? <Navigate to="/app" replace /> : <Login />} />
       <Route path="/register" element={session ? <Navigate to="/app" replace /> : <Register />} />
