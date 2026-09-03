@@ -197,7 +197,7 @@ export function StudentPortal() {
 
             {/* 2 — Teaching experience ----------------------------------- */}
             <Section
-              n={2} title="Previous tutoring experience"
+              n={2} title="Teaching experience"
               description="At Griffith or elsewhere. Strongly considered by convenors."
               action={!readOnly && <Button size="sm" variant="secondary" onClick={() => setExpOpen(true)}>Add</Button>}
             >

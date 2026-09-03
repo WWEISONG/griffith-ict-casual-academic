@@ -86,7 +86,7 @@ export function PersonDetail() {
         <div className="space-y-5 lg:col-span-2">
 
           <Card>
-            <CardHeader title="Teaching history"
+            <CardHeader title="Teaching experience"
                         description={`${experience.length} recorded ${experience.length === 1 ? 'role' : 'roles'}`} />
             {experience.length === 0 ? (
               <EmptyState title="No teaching recorded"
@@ -117,7 +117,7 @@ export function PersonDetail() {
             <>
               <Card>
                 <CardHeader
-                  title="Courses they asked to teach"
+                  title="Applied courses"
                   description={`Their ranked order · updated ${relativeTime(application.updatedAt)}`}
                 />
                 <ul className="divide-y divide-ink-200">
