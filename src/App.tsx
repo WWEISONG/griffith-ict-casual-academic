@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from '@/lib/auth/AuthContext'
 import { ToastProvider } from '@/hooks/useToast'
 import { AppShell } from '@/components/layout/AppShell'
 import { LoadingState } from '@/components/ui'
+import { Brand } from '@/components/ui/Brand'
 
 import { Landing } from '@/pages/Landing'
 import { Login } from '@/pages/auth/Login'
@@ -55,7 +56,7 @@ function StudentChrome({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-ink-50">
       <header className="sticky top-0 z-30 border-b border-ink-200 bg-white">
         <div className="mx-auto flex h-14 max-w-4xl items-center gap-3 px-5">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-griffith-700 text-sm font-bold text-white">G</span>
+          <Brand size={30} />
           <div className="min-w-0 leading-tight">
             <p className="truncate text-sm font-semibold text-ink-900">Casual Academic Portal</p>
             <p className="truncate text-[11px] text-ink-500">School of ICT · Griffith University</p>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui'
+import { Brand } from '@/components/ui/Brand'
 
 /**
  * Deliberately minimal: who this belongs to, and the two things a visitor can
@@ -9,9 +10,7 @@ export function Landing() {
   return (
     <div className="grid min-h-screen place-items-center bg-ink-50 px-5 py-12">
       <main className="w-full max-w-md text-center">
-        <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-griffith-700 text-2xl font-bold text-white">
-          G
-        </span>
+        <Brand size={52} className="mx-auto" />
 
         <h1 className="mt-6 text-2xl font-semibold tracking-tight text-ink-900">
           Casual Academic Portal
