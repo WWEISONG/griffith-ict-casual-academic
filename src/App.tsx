@@ -5,7 +5,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { LoadingState } from '@/components/ui'
 import { Brand } from '@/components/ui/Brand'
 
-import { Landing } from '@/pages/Landing'
+import { Landing, StaffLanding } from '@/pages/Landing'
 import { Login } from '@/pages/auth/Login'
 import { Register } from '@/pages/auth/Register'
 import { StudentPortal } from '@/pages/student/StudentPortal'
@@ -82,6 +82,10 @@ function Router() {
       <Route path="/" element={
         loading ? <div className="grid min-h-screen place-items-center"><LoadingState /></div>
                 : session ? <Navigate to="/app" replace /> : <Landing />
+      } />
+      <Route path="/staff" element={
+        loading ? <div className="grid min-h-screen place-items-center"><LoadingState /></div>
+                : session ? <Navigate to="/app" replace /> : <StaffLanding />
       } />
       <Route path="/login" element={session ? <Navigate to="/app" replace /> : <Login />} />
       <Route path="/register" element={session ? <Navigate to="/app" replace /> : <Register />} />
