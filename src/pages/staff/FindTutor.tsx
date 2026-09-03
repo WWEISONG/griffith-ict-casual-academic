@@ -17,8 +17,6 @@ import { ICT_COURSES } from '@/data/courses'
 import { downloadTextFile, formatDate } from '@/lib/utils'
 import type { StudentRow } from '@/types'
 
-type Relation = 'any' | 'tutored' | 'applied'
-
 export function FindTutor() {
   const provider = getProvider()
   const navigate = useNavigate()
@@ -27,7 +25,6 @@ export function FindTutor() {
 
   const search = params.get('q') ?? ''
   const course = params.get('course') ?? ''
-  const relation = (params.get('rel') as Relation) || 'any'
 
   const setParam = (k: string, v: string) => {
     const next = new URLSearchParams(params)
@@ -41,14 +38,11 @@ export function FindTutor() {
   const rows = useMemo(() => {
     let r = state.data ?? []
     if (course) {
-      r = r.filter((s) => {
-        const taught = s.tutoredCourses.includes(course)
-        const applied = s.appliedCourses.includes(course)
-        if (relation === 'tutored') return taught
-        if (relation === 'applied') return applied
-        return taught || applied
-      })
-      // When filtering by a course, people who have actually taught it come first.
+      // Anyone connected to the course, either way: they have taught it, or
+      // they have asked to. Splitting that into a second control made the
+      // convenor choose before seeing anything.
+      r = r.filter((s) => s.tutoredCourses.includes(course) || s.appliedCourses.includes(course))
+      // People who have actually taught it first.
       r = [...r].sort((a, b) => {
         const at = a.tutoredCourses.includes(course) ? 1 : 0
         const bt = b.tutoredCourses.includes(course) ? 1 : 0
@@ -56,7 +50,7 @@ export function FindTutor() {
       })
     }
     return r
-  }, [state.data, course, relation])
+  }, [state.data, course])
 
   async function exportCsv() {
     try {
@@ -82,15 +76,13 @@ export function FindTutor() {
       />
 
       <Card className="mb-5">
-        <div className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="lg:col-span-2">
-            <Input
-              placeholder="Search name, email, student number or program…"
-              value={search}
-              onChange={(e) => setParam('q', e.target.value)}
-              aria-label="Search people"
-            />
-          </div>
+        <div className="grid gap-3 p-4 sm:grid-cols-2">
+          <Input
+            placeholder="Search name, email, student number or program…"
+            value={search}
+            onChange={(e) => setParam('q', e.target.value)}
+            aria-label="Search people"
+          />
           <Select value={course} onChange={(e) => setParam('course', e.target.value)}
                   aria-label="Filter by course">
             <option value="">Any course</option>
@@ -98,17 +90,11 @@ export function FindTutor() {
               <option key={c.code} value={c.code}>{c.code} — {c.title}</option>
             ))}
           </Select>
-          <Select value={relation} onChange={(e) => setParam('rel', e.target.value)}
-                  aria-label="Relationship to that course" disabled={!course}>
-            <option value="any">Taught it or asked for it</option>
-            <option value="tutored">Has taught it</option>
-            <option value="applied">Has asked for it</option>
-          </Select>
         </div>
         <div className="flex flex-wrap items-center gap-3 border-t border-ink-200 px-4 py-2.5 text-sm text-ink-500">
           {course && (
             <span>
-              Showing people connected to{' '}
+              Everyone who has taught or applied for{' '}
               <strong className="font-medium text-ink-800">{course}</strong>
             </span>
           )}
