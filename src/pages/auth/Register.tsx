@@ -182,16 +182,6 @@ export function Register() {
           of ICT and are visible to the convenors of the courses you nominate.
         </p>
 
-        {/* Staff accounts are provisioned by the School, not self-registered,
-            because a Griffith staff address does not distinguish a convenor
-            from an HDR candidate. */}
-        <p className="border-t border-ink-200 pt-4 text-xs leading-relaxed text-ink-500">
-          <strong className="font-medium text-ink-700">Course convenor?</strong>{' '}
-          Staff accounts are set up by the School administrator — contact{' '}
-          <a href="mailto:w.song@griffith.edu.au?subject=Casual%20Academic%20Portal%20—%20convenor%20access"
-             className="font-medium text-griffith-700 hover:underline">w.song@griffith.edu.au</a>{' '}
-          rather than registering here.
-        </p>
       </form>
     </AuthLayout>
   )
