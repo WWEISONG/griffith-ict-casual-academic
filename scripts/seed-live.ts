@@ -46,7 +46,7 @@ const PREFIX = 'sample.'
 interface Applicant {
   first: string; last: string; number: string; program: string
   degree: 'undergraduate' | 'honours' | 'masters' | 'phd'
-  gpa: number; campus: string; hours: number; days: string[]
+  gpa: number; campus: string; phone: string; hours: number; days: string[]
   statement: string
   prefs: Array<{ course: string; confidence: number; note?: string }>
   experience: Array<{ course: string; year: number; trimester: 1 | 2 | 3; role: string; hours: number; description: string }>
@@ -55,7 +55,7 @@ interface Applicant {
 const APPLICANTS: Applicant[] = [
   {
     first: 'Liam', last: 'Chen', number: 's5201883', program: 'Bachelor of Computer Science',
-    degree: 'undergraduate', gpa: 6.4, campus: 'Nathan', hours: 10, days: ['Mon', 'Tue', 'Wed', 'Thu'],
+    degree: 'undergraduate', gpa: 6.4, campus: 'Nathan', phone: '04' + Math.floor(10000000 + Math.random() * 89999999), hours: 10, days: ['Mon', 'Tue', 'Wed', 'Thu'],
     statement: 'I have tutored 1811ICT across two consecutive trimesters and consistently received student evaluations above 4.5 out of 5. I am comfortable running tutorials for cohorts of 25 to 30 and have built supplementary practice material that the convenor now reuses. My own results in the introductory programming sequence were 7s, and I have since worked part-time as a developer using Python and Java, which helps me connect course content to industry practice.',
     prefs: [
       { course: '1811ICT', confidence: 5, note: 'Tutored twice; I know the assessment structure well.' },
@@ -69,7 +69,7 @@ const APPLICANTS: Applicant[] = [
   },
   {
     first: 'Aisha', last: 'Rahman', number: 's5177432', program: 'Bachelor of Computer Science (Honours)',
-    degree: 'honours', gpa: 6.8, campus: 'Nathan', hours: 12, days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+    degree: 'honours', gpa: 6.8, campus: 'Nathan', phone: '04' + Math.floor(10000000 + Math.random() * 89999999), hours: 12, days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
     statement: 'I am an Honours student working on graph algorithms, and I have tutored 2801ICT and 1808ICT. I particularly enjoy the moment where a student stops pattern-matching to past exam questions and starts reasoning about complexity properly. I run optional revision sessions before exams and have prepared worked-solution sets for both courses. I am available across all five days and could take on a coordination role if that would help.',
     prefs: [
       { course: '2801ICT', confidence: 5, note: 'Tutored previously; also my Honours area.' },
@@ -83,7 +83,7 @@ const APPLICANTS: Applicant[] = [
   },
   {
     first: 'Raj', last: 'Deshmukh', number: 's5210044', program: 'PhD (Information and Communication Technology)',
-    degree: 'phd', gpa: 6.9, campus: 'Nathan', hours: 12, days: ['Tue', 'Wed', 'Thu'],
+    degree: 'phd', gpa: 6.9, campus: 'Nathan', phone: '04' + Math.floor(10000000 + Math.random() * 89999999), hours: 12, days: ['Tue', 'Wed', 'Thu'],
     statement: 'I am a PhD candidate in network security and have tutored the networking sequence for three trimesters, including coordinating a marking team of four for 2809ICT. I hold CCNA certification and maintain the Packet Tracer lab materials currently used in 3808ICT. I would like to continue with both courses and can support the onboarding of new tutors.',
     prefs: [
       { course: '3808ICT', confidence: 5, note: 'I maintain the current lab materials.' },
@@ -97,7 +97,7 @@ const APPLICANTS: Applicant[] = [
   },
   {
     first: 'Priya', last: 'Sharma', number: 's5188204', program: 'Master of Information Technology',
-    degree: 'masters', gpa: 6.1, campus: 'Nathan', hours: 8, days: ['Mon', 'Wed', 'Fri'],
+    degree: 'masters', gpa: 6.1, campus: 'Nathan', phone: '04' + Math.floor(10000000 + Math.random() * 89999999), hours: 8, days: ['Mon', 'Wed', 'Fri'],
     statement: 'I completed 2814ICT with a 7 and have since tutored it for a full trimester, as well as marking for 7003ICT. My Masters project involves designing a normalised schema for a health-data pipeline, so the material is current for me. I am confident teaching SQL, ER modelling and normalisation, and I am happy to take the postgraduate cohort as well as undergraduate streams.',
     prefs: [
       { course: '2814ICT', confidence: 5, note: 'Tutored last trimester.' },
@@ -110,7 +110,7 @@ const APPLICANTS: Applicant[] = [
   },
   {
     first: 'Daniel', last: 'Okafor', number: 's5240117', program: 'Master of Cyber Security',
-    degree: 'masters', gpa: 5.9, campus: 'Nathan', hours: 10, days: ['Mon', 'Tue', 'Thu'],
+    degree: 'masters', gpa: 5.9, campus: 'Nathan', phone: '04' + Math.floor(10000000 + Math.random() * 89999999), hours: 10, days: ['Mon', 'Tue', 'Thu'],
     statement: 'I demonstrate for 7905ICT and manage the isolated lab environment used for the practical exercises. Before moving to Australia I tutored introductory networking for two years. I am studying a Master of Cyber Security and hold a Security+ certification. I would like to expand into 3809ICT, where my competitive CTF experience is directly relevant to the assessment tasks.',
     prefs: [
       { course: '7905ICT', confidence: 5, note: 'Currently demonstrating.' },
@@ -120,40 +120,6 @@ const APPLICANTS: Applicant[] = [
     experience: [
       { course: '7905ICT', year: 2026, trimester: 2, role: 'demonstrator', hours: 6, description: 'Ran the hands-on security lab environment and CTF exercises.' },
     ],
-  },
-  {
-    first: 'Sophie', last: 'Tran', number: 's5199650', program: 'Bachelor of Information Technology',
-    degree: 'undergraduate', gpa: 5.6, campus: 'Gold Coast', hours: 8, days: ['Mon', 'Tue', 'Wed'],
-    statement: 'This would be my first tutoring role. I am in my final year of Information Technology at Gold Coast with a 5.6 GPA and scored a 6 in 1811ICT. I have been a peer mentor in the PAL program for two trimesters, so I have experience explaining material one-on-one and in small groups, and I completed the PAL leader training last year.',
-    prefs: [
-      { course: '1811ICT', confidence: 4, note: 'PAL leader for this course.' },
-      { course: '1621ICT', confidence: 4 },
-      { course: '1001ICT', confidence: 3 },
-    ],
-    experience: [],
-  },
-  {
-    first: 'Emily', last: 'Wu', number: 's5226781', program: 'Bachelor of Computer Science',
-    degree: 'undergraduate', gpa: 6.0, campus: 'Nathan', hours: 6, days: ['Tue', 'Thu'],
-    statement: 'I assisted in the 1005ICT labs last trimester and would like to step up to running my own tutorial group. I am in my third year of Computer Science with a 6.0 GPA and achieved a 7 in both 1005ICT and 1811ICT. I am organised and reliable, and I have found that I am good at spotting when a student is stuck on a concept rather than on syntax.',
-    prefs: [
-      { course: '1005ICT', confidence: 5 },
-      { course: '1811ICT', confidence: 4 },
-      { course: '1001ICT', confidence: 4 },
-    ],
-    experience: [
-      { course: '1005ICT', year: 2026, trimester: 2, role: 'lab_assistant', hours: 4, description: 'Object-oriented programming labs in Java.' },
-    ],
-  },
-  {
-    first: 'Noah', last: 'Baker', number: 's5245502', program: 'Bachelor of Information Technology',
-    degree: 'undergraduate', gpa: 4.8, campus: 'Logan', hours: 4, days: ['Mon', 'Fri'],
-    statement: 'I would like to try tutoring for the first time. I am a second-year IT student based at Logan. I am strong at explaining things and have helped classmates through the introductory programming assignments informally throughout the year. I am available Mondays and Fridays and can travel to Nathan for tutorials if required.',
-    prefs: [
-      { course: '1001ICT', confidence: 3 },
-      { course: '1811ICT', confidence: 3 },
-    ],
-    experience: [],
   },
 ]
 
@@ -194,8 +160,8 @@ async function seedOne(a: Applicant) {
 
   // Profile detail the signup form does not collect.
   await db.from('profiles').update({
-    gpa: a.gpa, degree_level: a.degree, campus: a.campus,
-    has_work_rights: true, has_blue_card: a.gpa > 5.8,
+    degree_level: a.degree, campus: a.campus, phone: a.phone,
+    has_work_rights: true, has_blue_card: true,
   }).eq('id', userId!)
 
   // Teaching history.
@@ -237,8 +203,33 @@ async function seedOne(a: Applicant) {
   await db.auth.signOut()
 }
 
+/**
+ * A staff account to review the applicants with.
+ *
+ * Registration always creates a student, so this account needs promoting to
+ * 'lecturer' afterwards — the script prints the one statement to run.
+ */
+const LECTURER = {
+  email: 'sample.convenor@griffith.edu.au',
+  name: 'Dr Sample Convenor',
+  courses: ['1811ICT', '1001ICT', '2801ICT', '2814ICT', '7905ICT'],
+}
+
+async function seedLecturer() {
+  const signUp = await db.auth.signUp({
+    email: LECTURER.email, password: PASSWORD,
+    options: { data: { full_name: LECTURER.name } },
+  })
+  if (signUp.error && !/already registered/i.test(signUp.error.message)) {
+    console.log(`  x ${LECTURER.name}: ${signUp.error.message}`)
+    return
+  }
+  console.log(`  ok ${LECTURER.name.padEnd(22)} ${LECTURER.email}`)
+  await db.auth.signOut()
+}
+
 async function main() {
-  console.log(`\n  Seeding sample applicants into ${URL}\n`)
+  console.log(`\n  Seeding sample data into ${URL}\n`)
 
   // An open round is required before anything can be submitted. Reading it
   // needs a signed-in user, so borrow the first applicant's session.
@@ -264,10 +255,28 @@ async function main() {
 
   await db.auth.signOut()
   for (const a of APPLICANTS) await seedOne(a)
+  await seedLecturer()
 
   console.log(`\n  ${created} created, ${reused} already existed, ${failed} failed`)
-  console.log(`  Sign-in password for every sample account: ${PASSWORD}`)
-  console.log('  Remove them later with supabase/remove-sample-data.sql\n')
+  console.log(`  Password for every sample account: ${PASSWORD}`)
+  console.log('\n  Run this once in the Supabase SQL Editor to finish:\n')
+  console.log(`  -- confirm the sample accounts and make the convenor staff
+  update auth.users
+     set email_confirmed_at = coalesce(email_confirmed_at, now())
+   where email like 'sample.%';
+
+  alter table public.profiles disable trigger profiles_guard_self_update;
+  update public.profiles
+     set role = 'lecturer', position = 'Course Convenor', student_number = null
+   where email = '${LECTURER.email}';
+  alter table public.profiles enable trigger profiles_guard_self_update;
+
+  insert into public.course_lecturers (course_code, lecturer_id, is_convenor)
+  select c, p.id, true from public.profiles p,
+         unnest(array[${LECTURER.courses.map((c) => `'${c}'`).join(', ')}]) c
+   where p.email = '${LECTURER.email}'
+  on conflict do nothing;`)
+  console.log('\n  Remove all of it later with supabase/remove-sample-data.sql\n')
 }
 
 main().catch((e) => { console.error(e); process.exit(1) })
