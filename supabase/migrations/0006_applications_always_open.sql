@@ -86,6 +86,7 @@ create policy applications_insert_own on public.applications
 -- that is the convenors' job, enforced by the trigger below.
 -- ---------------------------------------------------------------------------
 drop policy if exists applications_update_own_draft on public.applications;
+drop policy if exists applications_update_own on public.applications;
 create policy applications_update_own on public.applications
   for update using (applicant_id = auth.uid())
   with check (applicant_id = auth.uid());
@@ -115,6 +116,7 @@ create trigger applications_guard_status before update on public.applications
 -- Preferences follow the same rule: editable whenever, by the owner.
 -- ---------------------------------------------------------------------------
 drop policy if exists prefs_write_own_draft on public.application_preferences;
+drop policy if exists prefs_write_own on public.application_preferences;
 create policy prefs_write_own on public.application_preferences
   for all using (
     exists (select 1 from public.applications a

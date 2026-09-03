@@ -8,12 +8,13 @@
     "dev": "vite",
     "build": "tsc -p tsconfig.json --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.scripts.json --noEmit",
+    "typecheck": "node scripts/check-migrations.mjs && tsc -p tsconfig.json --noEmit && tsc -p tsconfig.scripts.json --noEmit",
     "lint": "eslint . --ext .ts,.tsx",
     "bootstrap": "tsx scripts/bootstrap.ts",
     "smoke": "tsx scripts/smoke.ts",
     "gen:setup": "bash scripts/gen-setup.sh",
-    "seed:live": "tsx scripts/seed-live.ts"
+    "seed:live": "tsx scripts/seed-live.ts",
+    "check:migrations": "node scripts/check-migrations.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.114.0",
