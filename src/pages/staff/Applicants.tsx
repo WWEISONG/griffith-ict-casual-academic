@@ -257,7 +257,7 @@ export function Applicants() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[58rem] text-sm">
               <thead className="border-b border-ink-200 bg-ink-50 text-left">
-                <tr className="text-xs font-medium uppercase tracking-wide text-ink-500">
+                <tr className="text-xs font-medium text-ink-500">
                   <th scope="col" className="w-10 px-4 py-2.5">
                     <input type="checkbox" aria-label="Select all"
                            checked={allSelected}

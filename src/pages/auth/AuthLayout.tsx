@@ -1,33 +1,32 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
+/**
+ * Branding sits above the card rather than in a top bar — these pages have a
+ * single purpose, so a navigation strip only competes with the form.
+ */
 export function AuthLayout({ title, subtitle, children, footer }: {
   title: string; subtitle?: string; children: ReactNode; footer?: ReactNode
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-ink-50">
-      <header className="border-b border-ink-200 bg-white">
-        <div className="mx-auto flex h-16 max-w-6xl items-center px-5">
-          <Link to="/" className="flex items-center gap-3">
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-griffith-700 text-base font-bold text-white">G</span>
-            <div className="leading-tight">
-              <p className="text-sm font-semibold text-ink-900">Casual Academic Portal</p>
-              <p className="text-[11px] text-ink-500">School of ICT · Griffith University</p>
-            </div>
-          </Link>
-        </div>
-      </header>
+    <div className="grid min-h-screen place-items-center bg-ink-50 px-5 py-10">
+      <div className="w-full max-w-md">
+        <Link to="/" className="mb-7 block text-center">
+          <span className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-griffith-700 text-xl font-bold text-white">
+            G
+          </span>
+          <p className="mt-3 text-base font-semibold text-ink-900">Casual Academic Portal</p>
+          <p className="mt-0.5 text-xs text-ink-500">School of ICT · Griffith University</p>
+        </Link>
 
-      <main className="flex flex-1 items-start justify-center px-5 py-10 sm:py-16">
-        <div className="w-full max-w-md">
-          <div className="card p-6 sm:p-8">
-            <h1 className="text-xl font-semibold tracking-tight text-ink-900">{title}</h1>
-            {subtitle && <p className="mt-1 text-sm text-ink-500">{subtitle}</p>}
-            <div className="mt-6">{children}</div>
-          </div>
-          {footer && <p className="mt-5 text-center text-sm text-ink-600">{footer}</p>}
+        <div className="card p-6 sm:p-8">
+          <h1 className="text-xl font-semibold tracking-tight text-ink-900">{title}</h1>
+          {subtitle && <p className="mt-1 text-sm text-ink-500">{subtitle}</p>}
+          <div className="mt-6">{children}</div>
         </div>
-      </main>
+
+        {footer && <p className="mt-5 text-center text-sm leading-relaxed text-ink-600">{footer}</p>}
+      </div>
     </div>
   )
 }

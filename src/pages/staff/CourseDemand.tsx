@@ -62,15 +62,15 @@ export function CourseDemand() {
 
       <div className="mb-5 grid gap-3 sm:grid-cols-3">
         <div className="card px-4 py-3.5">
-          <p className="text-xs font-medium uppercase tracking-wide text-ink-500">Courses covered</p>
+          <p className="text-xs font-medium text-ink-500">Courses covered</p>
           <p className="mt-1 text-2xl font-semibold tabular-nums text-emerald-700">{demand.length}</p>
         </div>
         <div className="card px-4 py-3.5">
-          <p className="text-xs font-medium uppercase tracking-wide text-ink-500">No applicants</p>
+          <p className="text-xs font-medium text-ink-500">No applicants</p>
           <p className="mt-1 text-2xl font-semibold tabular-nums text-red-700">{uncoveredCount}</p>
         </div>
         <div className="card px-4 py-3.5">
-          <p className="text-xs font-medium uppercase tracking-wide text-ink-500">Most applied-for</p>
+          <p className="text-xs font-medium text-ink-500">Most applied-for</p>
           <p className="mt-1 text-2xl font-semibold tabular-nums text-ink-900">{peak}</p>
         </div>
       </div>
@@ -97,7 +97,7 @@ export function CourseDemand() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[40rem] text-sm">
             <thead className="border-b border-ink-200 bg-ink-50 text-left">
-              <tr className="text-xs font-medium uppercase tracking-wide text-ink-500">
+              <tr className="text-xs font-medium text-ink-500">
                 <th scope="col" className="px-4 py-2.5">Course</th>
                 <th scope="col" className="px-4 py-2.5">Level</th>
                 <th scope="col" className="w-1/3 px-4 py-2.5">Applicants</th>

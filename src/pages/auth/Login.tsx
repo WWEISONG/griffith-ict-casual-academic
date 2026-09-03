@@ -106,7 +106,7 @@ export function Login() {
 
       {!backendIsLive && showSamples && (
         <div className="mt-6 rounded-lg border border-ink-200 bg-ink-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-ink-700">
+          <p className="text-xs font-semibold text-ink-700">
             Running on sample data
           </p>
           <p className="mt-1.5 text-xs leading-relaxed text-ink-600">

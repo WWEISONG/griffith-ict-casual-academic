@@ -238,7 +238,7 @@ export function Modal({ open, onClose, title, description, children, footer, wid
 export function Stat({ label, value, sub, tone }: { label: string; value: ReactNode; sub?: string; tone?: Tone }) {
   return (
     <div className="card px-4 py-3.5">
-      <p className="text-xs font-medium uppercase tracking-wide text-ink-500">{label}</p>
+      <p className="text-xs font-medium text-ink-500">{label}</p>
       <p className={cn('mt-1 text-2xl font-semibold tabular-nums',
         tone === 'brand' ? 'text-griffith-800' : 'text-ink-900')}>{value}</p>
       {sub && <p className="mt-0.5 text-xs text-ink-500">{sub}</p>}
