@@ -234,16 +234,16 @@ export interface ApplicantRow {
   fullName: string
   email: string
   studentNumber?: string | null
+  /** Contact number — collected on the application, used to reach applicants. */
+  phone?: string | null
   program?: string | null
   degreeLevel?: DegreeLevel | null
-  gpa?: number | null
   campus?: Campus | null
   status: ApplicationStatus
   submittedAt?: string | null
   /** The preference that matched the course being viewed. */
   matchedCourseCode: string
   matchedRank: number
-  matchedConfidence: number
   /** How many times they have tutored the matched course before. */
   priorTimesTaught: number
   totalPriorEngagements: number

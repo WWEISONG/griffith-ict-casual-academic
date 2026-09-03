@@ -77,6 +77,7 @@ export function StudentPortal() {
 
   const canSubmit = prefs.filter((p) => p.courseCode).length > 0
     && statementChars >= MIN_STATEMENT && hours > 0 && days.length > 0
+    && Boolean(profile?.phone?.trim())
 
   async function save(thenSubmit: boolean) {
     setError(null)
@@ -109,14 +110,14 @@ export function StudentPortal() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-5 py-8 sm:py-10">
-      <div className="mb-7">
+    <div className="mx-auto max-w-5xl px-6 py-10 sm:py-12">
+      <div className="mb-8">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-ink-900">
+            <h1 className="text-3xl font-semibold tracking-tight text-ink-900">
               Casual academic application
             </h1>
-            <p className="mt-1.5 text-sm text-ink-600">
+            <p className="mt-2 text-base leading-relaxed text-ink-600">
               Tell us which courses you would like to tutor. You can update this
               at any time as you gain experience.
             </p>
@@ -161,21 +162,15 @@ export function StudentPortal() {
             </div>
           )}
 
-          <div className="space-y-5">
+          <div className="space-y-6">
             {/* 1 — Your details ------------------------------------------ */}
             <Section n={1} title="Your details"
                      description="Convenors see these alongside your application.">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-5 sm:grid-cols-2">
                 <Field label="Name"><Input value={profile?.fullName ?? ''} disabled /></Field>
                 <Field label="Griffith email"><Input value={profile?.email ?? ''} disabled /></Field>
                 <Field label="Student number"><Input value={profile?.studentNumber ?? ''} disabled /></Field>
                 <Field label="Program"><Input value={profile?.program ?? '—'} disabled /></Field>
-
-                <Field label="GPA" hint="On Griffith's 0–7 scale.">
-                  <Input type="number" min={0} max={7} step={0.01} disabled={readOnly}
-                         value={profile?.gpa ?? ''}
-                         onChange={(e) => refreshProfile({ gpa: e.target.value === '' ? null : Number(e.target.value) })} />
-                </Field>
 
                 <Field label="Campus">
                   <Select value={profile?.campus ?? ''} disabled={readOnly}
@@ -185,13 +180,13 @@ export function StudentPortal() {
                   </Select>
                 </Field>
 
-                <Field label="Contact number" hint="Optional — used only if a convenor needs to reach you quickly.">
-                  <Input type="tel" disabled={readOnly} value={profile?.phone ?? ''}
+                <Field label="Contact number" required>
+                  <Input type="tel" required disabled={readOnly} value={profile?.phone ?? ''}
                          onChange={(e) => refreshProfile({ phone: e.target.value })} />
                 </Field>
               </div>
 
-              <div className="mt-4 grid gap-2.5 border-t border-ink-200 pt-4 sm:grid-cols-2">
+              <div className="mt-5 grid gap-3 border-t border-ink-200 pt-5 sm:grid-cols-2">
                 <label className="flex items-start gap-2.5">
                   <input type="checkbox" disabled={readOnly} checked={profile?.hasWorkRights ?? false}
                          onChange={(e) => refreshProfile({ hasWorkRights: e.target.checked })}
@@ -280,9 +275,9 @@ export function StudentPortal() {
                 {prefs.map((pref, i) => {
                   const course = COURSE_BY_CODE[pref.courseCode]
                   return (
-                    <div key={i} className="rounded-lg border border-ink-200 bg-ink-50/60 p-4">
+                    <div key={i} className="rounded-xl border border-ink-200 bg-ink-50/60 p-5">
                       <div className="flex items-start gap-3">
-                        <span className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-griffith-700 text-xs font-bold text-white">
+                        <span className="mt-1.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white text-sm font-semibold text-ink-800 ring-1 ring-ink-300">
                           {i + 1}
                         </span>
                         <div className="min-w-0 flex-1 space-y-3">
@@ -299,20 +294,6 @@ export function StudentPortal() {
                               <Badge tone="neutral">{levelShortLabel(course.level)}</Badge>
                             </div>
                           )}
-
-                          <div>
-                            <label className="mb-1 block text-xs font-medium text-ink-700" htmlFor={`conf-${i}`}>
-                              Confidence with this material
-                              <span className="ml-1.5 font-normal text-ink-500">1 = needs preparation · 5 = could teach tomorrow</span>
-                            </label>
-                            <div className="flex items-center gap-3">
-                              <input id={`conf-${i}`} type="range" min={1} max={5} step={1} disabled={readOnly}
-                                     className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-ink-200 accent-griffith-700"
-                                     value={pref.confidence}
-                                     onChange={(e) => setPrefs((p) => p.map((x, j) => j === i ? { ...x, confidence: Number(e.target.value) } : x))} />
-                              <span className="w-4 shrink-0 text-sm font-semibold tabular-nums text-ink-800">{pref.confidence}</span>
-                            </div>
-                          </div>
 
                           <Input disabled={readOnly} maxLength={200} value={pref.note}
                                  aria-label={`Why course ${i + 1}`}
@@ -338,8 +319,7 @@ export function StudentPortal() {
             </Section>
 
             {/* 4 — Statement --------------------------------------------- */}
-            <Section n={4} title="Why you are qualified"
-                     description="Convenors read this first. Be concrete about what you have taught and what went well.">
+            <Section n={4} title="Why you are qualified">
               <Textarea value={statement} disabled={readOnly} rows={9} maxLength={4000}
                         onChange={(e) => setStatement(e.target.value)}
                         placeholder="Describe your experience with the course material, any teaching or mentoring you have done, and how you would run a tutorial." />
@@ -353,7 +333,7 @@ export function StudentPortal() {
 
             {/* 5 — Availability ------------------------------------------ */}
             <Section n={5} title="Availability">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-5 sm:grid-cols-2">
                 <Field label="Maximum hours per week" hint="Includes delivery, preparation and marking.">
                   <Select value={hours} disabled={readOnly} onChange={(e) => setHours(Number(e.target.value))}>
                     {[2, 4, 6, 8, 10, 12, 14, 16, 20].map((h) => <option key={h} value={h}>{h} hours</option>)}
@@ -384,28 +364,12 @@ export function StudentPortal() {
             </Section>
 
             {/* Submit ----------------------------------------------------- */}
-            <Card>
-              <div className="flex flex-wrap items-center gap-3 p-5">
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-ink-900">
-                    {submitted ? 'Keep your application up to date' : 'Ready to submit?'}
-                  </p>
-                  <p className="mt-0.5 text-sm text-ink-600">
-                    {canSubmit
-                      ? submitted
-                        ? 'Convenors always see your latest version.'
-                        : 'You can still change it afterwards.'
-                      : 'Add a course, write 100+ characters, and choose your availability.'}
-                  </p>
-                </div>
-                <Button variant="secondary" onClick={() => save(false)} loading={saving === 'saving'}>
-                  Save
-                </Button>
-                <Button onClick={() => save(true)} loading={saving === 'submitting'} disabled={!canSubmit}>
-                  {submitted ? 'Update application' : 'Submit application'}
-                </Button>
-              </div>
-            </Card>
+            <div className="flex justify-end">
+              <Button size="lg" onClick={() => save(true)}
+                      loading={saving === 'submitting'} disabled={!canSubmit}>
+                {submitted ? 'Update application' : 'Submit application'}
+              </Button>
+            </div>
           </div>
         </>
 
@@ -447,19 +411,19 @@ function Section({ n, title, description, action, children }: {
 }) {
   return (
     <Card>
-      <div className="flex items-start justify-between gap-4 border-b border-ink-200 px-5 py-4">
-        <div className="flex min-w-0 gap-3">
-          <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-ink-100 text-xs font-semibold text-ink-700">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-ink-200 px-6 py-5">
+        <div className="flex min-w-0 items-center gap-3.5">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-griffith-700 text-sm font-semibold text-white">
             {n}
           </span>
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-ink-900">{title}</h2>
-            {description && <p className="mt-0.5 text-xs leading-relaxed text-ink-500">{description}</p>}
+            <h2 className="text-lg font-semibold tracking-tight text-ink-900">{title}</h2>
+            {description && <p className="mt-0.5 text-sm leading-relaxed text-ink-500">{description}</p>}
           </div>
         </div>
         {action}
       </div>
-      <div className="p-5">{children}</div>
+      <div className="px-6 py-5">{children}</div>
     </Card>
   )
 }
@@ -568,13 +532,13 @@ function ExperienceModal({ open, onClose, onSaved }: {
               {Object.entries(TUTOR_ROLE_LABEL).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </Select>
           </Field>
-          <Field label="Hours per week" hint="Optional">
+          <Field label="Hours per week">
             <Input type="number" min={0} max={40} value={hoursPerWeek}
                    onChange={(e) => setHours(e.target.value === '' ? '' : Number(e.target.value))} />
           </Field>
         </div>
 
-        <Field label="What did you do?" hint="Optional — one or two sentences.">
+        <Field label="What did you do?">
           <Textarea rows={3} value={description} maxLength={500}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="e.g. Ran two tutorial groups of 25 and held weekly consultation hours." />

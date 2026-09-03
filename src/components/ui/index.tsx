@@ -73,26 +73,26 @@ export function Field({ label, hint, error, required, children, htmlFor }: Field
 }
 
 const CONTROL =
-  'w-full rounded-lg border border-ink-300 bg-white px-3 text-sm text-ink-900 placeholder:text-ink-400 ' +
+  'w-full rounded-lg border border-ink-300 bg-white px-3.5 text-[15px] text-ink-900 placeholder:text-ink-400 ' +
   'transition-colors hover:border-ink-400 focus:border-griffith-600 focus:outline-none focus:ring-2 focus:ring-griffith-600/20 ' +
   'disabled:bg-ink-100 disabled:text-ink-500 aria-[invalid=true]:border-red-500'
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   function Input({ className, ...rest }, ref) {
-    return <input ref={ref} className={cn(CONTROL, 'h-10', className)} {...rest} />
+    return <input ref={ref} className={cn(CONTROL, 'h-11', className)} {...rest} />
   },
 )
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(
   function Textarea({ className, ...rest }, ref) {
-    return <textarea ref={ref} className={cn(CONTROL, 'min-h-[8rem] py-2.5 leading-relaxed', className)} {...rest} />
+    return <textarea ref={ref} className={cn(CONTROL, 'min-h-[9rem] py-3 leading-relaxed', className)} {...rest} />
   },
 )
 
 export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(
   function Select({ className, children, ...rest }, ref) {
     return (
-      <select ref={ref} className={cn(CONTROL, 'h-10 appearance-none bg-[length:1rem] bg-[right_0.6rem_center] bg-no-repeat pr-9',
+      <select ref={ref} className={cn(CONTROL, 'h-11 appearance-none bg-[length:1rem] bg-[right_0.6rem_center] bg-no-repeat pr-9',
         "bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23657493'%3E%3Cpath fill-rule='evenodd' d='M5.2 7.5L10 12.3l4.8-4.8' clip-rule='evenodd' stroke='%23657493' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E\")]",
         className)} {...rest}>
         {children}

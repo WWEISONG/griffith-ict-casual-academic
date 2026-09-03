@@ -128,6 +128,16 @@ async function main() {
   })
   check('new student registers as a student', fresh.profile.role === 'student')
 
+  // A contact number is required before submitting.
+  await expectReject('cannot submit without a contact number', async () => {
+    const d = await p.saveApplication({
+      statement: 'x'.repeat(150), hoursPerWeek: 6, availableDays: ['Mon'],
+      preferences: [{ courseCode: '1811ICT', rank: 1, confidence: 3 }],
+    })
+    return p.submitApplication(d.id)
+  })
+  await p.updateProfile(fresh.userId, { phone: '0400111222' })
+
   // HDR candidates hold @griffith.edu.au addresses, so the domain must NOT
   // grant staff access. Self-registration always yields a student.
   const phd = await p.register({
@@ -141,11 +151,14 @@ async function main() {
   await expectReject('a self-registered @griffith.edu.au user cannot list applicants', () =>
     p.listApplicants({}))
 
-  const draft = await p.saveApplication({
+  // The HDR checks above switched session; return to the applicant under test.
+  await p.signIn('test.applicant@griffithuni.edu.au', 'password123')
+  const draft = (await p.myApplications())[0]
+  check('draft is created in draft status', draft.status === 'draft')
+  await p.saveApplication({
     statement: 'Too short.', hoursPerWeek: 6,
     availableDays: ['Mon'], preferences: [{ courseCode: '1811ICT', rank: 1, confidence: 4 }],
-  })
-  check('draft is created in draft status', draft.status === 'draft')
+  }, draft.id)
 
   await expectReject('cannot submit with a statement under 100 characters', () =>
     p.submitApplication(draft.id))

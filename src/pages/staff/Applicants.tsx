@@ -268,7 +268,6 @@ export function Applicants() {
                   <th scope="col" className="px-4 py-2.5">Course</th>
                   <th scope="col" className="px-4 py-2.5 text-center">Pref.</th>
                   <th scope="col" className="px-4 py-2.5 text-center">Taught before</th>
-                  <th scope="col" className="px-4 py-2.5 text-center">GPA</th>
                   <th scope="col" className="px-4 py-2.5 text-center">Load</th>
                   <th scope="col" className="px-4 py-2.5">Status</th>
                   <th scope="col" className="px-4 py-2.5">Submitted</th>
@@ -322,9 +321,6 @@ export function Applicants() {
                         {r.priorTimesTaught > 0
                           ? <Badge tone="success">{r.priorTimesTaught}×</Badge>
                           : <span className="text-ink-400">—</span>}
-                      </td>
-                      <td className="px-4 py-3 text-center tabular-nums text-ink-700" onClick={() => open(r)}>
-                        {r.gpa?.toFixed(2) ?? '—'}
                       </td>
                       <td className="px-4 py-3 text-center" onClick={() => open(r)}>
                         {/* Heavy existing load is the usual reason not to offer

@@ -25,10 +25,10 @@
     @apply rounded-xl border border-ink-200 bg-white shadow-card;
   }
   .label {
-    @apply mb-1.5 block text-sm font-medium text-ink-800;
+    @apply mb-2 block text-[15px] font-medium text-ink-800;
   }
   .hint {
-    @apply mt-1.5 text-xs text-ink-500;
+    @apply mt-1.5 text-sm text-ink-500;
   }
   /* Table rows that are also links need a whole-row hover affordance. */
   .row-link {

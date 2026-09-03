@@ -94,7 +94,6 @@ export function ApplicantDetail() {
           </div>
           <p className="mt-1 text-sm text-ink-600">
             {app.studentNumber} · {app.program ?? '—'}
-            {app.gpa != null && <> · GPA {app.gpa.toFixed(2)}</>}
             {app.campus && <> · {app.campus}</>}
           </p>
           <p className="mt-0.5 text-sm text-ink-500">
@@ -168,10 +167,6 @@ export function ApplicantDetail() {
                           {timesTaught > 0 && <Badge tone="success">Tutored {timesTaught}×</Badge>}
                         </div>
                         {p.note && <p className="mt-1 text-sm text-ink-600">{p.note}</p>}
-                      </div>
-                      <div className="shrink-0 text-right">
-                        <p className="text-xs text-ink-500">Confidence</p>
-                        <p className="text-sm font-semibold tabular-nums text-ink-800">{p.confidence}/5</p>
                       </div>
                     </div>
                   </li>
@@ -250,7 +245,6 @@ export function ApplicantDetail() {
                 ['Student number', app.studentNumber ?? '—'],
                 ['Program', app.program ?? '—'],
                 ['Campus', app.campus ?? '—'],
-                ['GPA', app.gpa != null ? app.gpa.toFixed(2) : '—'],
               ].map(([k, v]) => (
                 <div key={String(k)} className="flex justify-between gap-3 px-5 py-2.5">
                   <dt className="text-ink-500">{k}</dt>

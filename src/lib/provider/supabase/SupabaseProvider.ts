@@ -420,14 +420,15 @@ export class SupabaseProvider implements DataProvider {
     if (filter.roundId) q = q.eq('round_id', filter.roundId)
     if (filter.courseCode) q = q.eq('matched_course_code', filter.courseCode)
     if (filter.status?.length) q = q.in('status', filter.status)
-    if (filter.minGpa !== undefined) q = q.gte('gpa', filter.minGpa)
     if (filter.degreeLevel) q = q.eq('degree_level', filter.degreeLevel)
     if (filter.search) {
       const s = `%${filter.search}%`
       q = q.or(`full_name.ilike.${s},email.ilike.${s},student_number.ilike.${s}`)
     }
     const { data, error } = await q
-      .order('matched_rank').order('prior_times_taught', { ascending: false }).order('gpa', { ascending: false })
+      .order('matched_rank')
+      .order('prior_times_taught', { ascending: false })
+      .order('total_prior_engagements', { ascending: false })
     if (error) explain(error, 'Could not load applicants.')
 
     let rows: ApplicantRow[] = (data ?? []).map((r: any) => ({
@@ -436,15 +437,14 @@ export class SupabaseProvider implements DataProvider {
       fullName: r.full_name,
       email: r.email,
       studentNumber: r.student_number,
+      phone: r.phone,
       program: r.program,
       degreeLevel: r.degree_level,
-      gpa: r.gpa === null ? null : Number(r.gpa),
       campus: r.campus,
       status: r.status,
       submittedAt: r.submitted_at,
       matchedCourseCode: r.matched_course_code,
       matchedRank: r.matched_rank,
-      matchedConfidence: r.matched_confidence,
       priorTimesTaught: Number(r.prior_times_taught ?? 0),
       totalPriorEngagements: Number(r.total_prior_engagements ?? 0),
       currentLoadHours: Number(r.current_load_hours ?? 0),
@@ -608,11 +608,12 @@ export class SupabaseProvider implements DataProvider {
   async exportApplicantsCsv(filter: ApplicantFilter): Promise<string> {
     const rows = await this.listApplicants(filter)
     return toCsv(
-      ['Course', 'Preference', 'Name', 'Student number', 'Email', 'Program', 'Level',
-       'GPA', 'Campus', 'Status', 'Prior times taught', 'Total prior roles', 'Current load (hrs)', 'Submitted'],
+      ['Course', 'Preference', 'Name', 'Student number', 'Email', 'Phone', 'Program',
+       'Level', 'Campus', 'Status', 'Prior times taught', 'Total prior roles',
+       'Current load (hrs)', 'Submitted'],
       rows.map((r) => [
         r.matchedCourseCode, r.matchedRank, r.fullName, r.studentNumber ?? '', r.email,
-        r.program ?? '', r.degreeLevel ?? '', r.gpa ?? '', r.campus ?? '', r.status,
+        r.phone ?? '', r.program ?? '', r.degreeLevel ?? '', r.campus ?? '', r.status,
         r.priorTimesTaught, r.totalPriorEngagements, r.currentLoadHours, r.submittedAt ?? '',
       ]),
     )

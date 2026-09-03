@@ -382,6 +382,7 @@ export class LocalProvider implements DataProvider {
     if (app.applicantId !== me.id) throw new Error('You may only submit your own application.')
     if (app.preferences.length < 1) throw new Error('Nominate at least one course before submitting.')
     if (app.statement.trim().length < 100) throw new Error('Your supporting statement must be at least 100 characters.')
+    if (!me.phone?.trim()) throw new Error('Add a contact number before submitting.')
 
     if (app.status === 'draft') app.status = 'submitted'
     app.submittedAt = app.submittedAt ?? new Date().toISOString()
@@ -449,7 +450,6 @@ export class LocalProvider implements DataProvider {
         const hay = `${applicant.fullName} ${applicant.email} ${applicant.studentNumber ?? ''}`.toLowerCase()
         if (!hay.includes(q)) continue
       }
-      if (filter.minGpa !== undefined && (applicant.gpa ?? 0) < filter.minGpa) continue
       if (filter.degreeLevel && applicant.degreeLevel !== filter.degreeLevel) continue
 
       for (const pref of app.preferences) {
@@ -468,15 +468,14 @@ export class LocalProvider implements DataProvider {
           fullName: applicant.fullName,
           email: applicant.email,
           studentNumber: applicant.studentNumber,
+          phone: applicant.phone,
           program: applicant.program,
           degreeLevel: applicant.degreeLevel,
-          gpa: applicant.gpa,
           campus: applicant.campus,
           status: app.status,
           submittedAt: app.submittedAt,
           matchedCourseCode: pref.courseCode,
           matchedRank: pref.rank,
-          matchedConfidence: pref.confidence,
           priorTimesTaught,
           totalPriorEngagements: this.db.experience.filter((e) => e.profileId === applicant.id).length,
           currentLoadHours: this.db.assignments
@@ -486,12 +485,13 @@ export class LocalProvider implements DataProvider {
       }
     }
 
-    // Best candidates first: first preference, then prior experience, then GPA.
+    // Best candidates first: first preference, then prior experience teaching
+    // that course, then breadth of teaching experience.
     return rows.sort(
       (a, b) =>
         a.matchedRank - b.matchedRank ||
         b.priorTimesTaught - a.priorTimesTaught ||
-        (b.gpa ?? 0) - (a.gpa ?? 0),
+        b.totalPriorEngagements - a.totalPriorEngagements,
     )
   }
 
@@ -637,11 +637,12 @@ export class LocalProvider implements DataProvider {
   async exportApplicantsCsv(filter: ApplicantFilter): Promise<string> {
     const rows = await this.listApplicants(filter)
     return toCsv(
-      ['Course', 'Preference', 'Name', 'Student number', 'Email', 'Program', 'Level',
-       'GPA', 'Campus', 'Status', 'Prior times taught', 'Total prior roles', 'Current load (hrs)', 'Submitted'],
+      ['Course', 'Preference', 'Name', 'Student number', 'Email', 'Phone', 'Program',
+       'Level', 'Campus', 'Status', 'Prior times taught', 'Total prior roles',
+       'Current load (hrs)', 'Submitted'],
       rows.map((r) => [
         r.matchedCourseCode, r.matchedRank, r.fullName, r.studentNumber ?? '', r.email,
-        r.program ?? '', r.degreeLevel ?? '', r.gpa ?? '', r.campus ?? '', r.status,
+        r.phone ?? '', r.program ?? '', r.degreeLevel ?? '', r.campus ?? '', r.status,
         r.priorTimesTaught, r.totalPriorEngagements, r.currentLoadHours, r.submittedAt ?? '',
       ]),
     )

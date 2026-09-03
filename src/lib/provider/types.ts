@@ -58,7 +58,6 @@ export interface ApplicantFilter {
   status?: ApplicationStatus[]
   /** Free-text across name, email, student number. */
   search?: string
-  minGpa?: number
   degreeLevel?: string
   /** Only applicants who have tutored the filtered course before. */
   experiencedOnly?: boolean
