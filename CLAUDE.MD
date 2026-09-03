@@ -38,8 +38,10 @@ hands off. This keeps V1 free of HR-system integration.
   official course reading-list directory, September 2026.
 
 ### Student applicants
-- Register with a Griffith email; enforced by database constraint **and**
-  signup trigger, not just form validation.
+- Register with a Griffith email — either `@griffithuni.edu.au` or
+  `@griffith.edu.au`, since HDR candidates use the latter. Enforced by database
+  constraint **and** signup trigger, not just form validation.
+- Self-registration always creates a **student**, regardless of domain.
 - Submit an application containing name, email, prior tutoring experience,
   ranked course preferences, and a supporting statement.
 - Save as draft and return later.
@@ -52,8 +54,10 @@ hands off. This keeps V1 free of HR-system integration.
 - One-click email with the message pre-written; contact is logged so two
   convenors do not chase the same candidate unknowingly.
 - Bulk shortlist / reject.
-- Accounts created by the administrator (V1, as specified). Bulk creation from
-  CSV is supported for a future School-wide rollout.
+- Accounts created by the administrator (V1, as specified) — never
+  self-registered, because a staff address is indistinguishable from an HDR
+  candidate's. Bulk creation from CSV is supported for a future School-wide
+  rollout.
 
 ---
 
@@ -91,7 +95,7 @@ RLS policies are plain PostgreSQL and carry across to RDS unchanged.
 | Static frontend + managed PostgreSQL | GitHub Pages cannot run a server. This is the only architecture that satisfies "GitHub Pages" and "real backend" simultaneously. |
 | Supabase over Firebase | Supabase is stock PostgreSQL, so the schema and security policies migrate to Amazon RDS unchanged. Firebase would be a rewrite. |
 | Authorisation in the database, not the client | The frontend is public code. Anyone can modify it. Rules enforced in PostgreSQL hold regardless. |
-| Role derived from email domain, server-side | `@griffithuni.edu.au` -> student, `@griffith.edu.au` -> staff. A student cannot self-register as a lecturer. |
+| Self-registration always creates a student | A Griffith staff domain does not identify staff: HDR candidates hold `@griffith.edu.au` addresses too. So the domain cannot distinguish a professor from a PhD student who wants to tutor. Anyone who registers is a student; staff accounts are created by the administrator. Role is never read from client-supplied data. |
 | Course code as primary key | `2801ICT` is already a stable, universally understood Griffith identifier. |
 | Experience separate from applications | A teaching record belongs to the person and persists across trimesters. |
 | Allocations separate from applications | An accepted application is a decision; an allocation is an operational fact with hours and a trimester. Conflating them makes multi-course tutors unrepresentable. |
@@ -107,7 +111,8 @@ RLS policies are plain PostgreSQL and carry across to RDS unchanged.
 - **Trimesters**, never semesters. Short form `T1` / `T2` / `T3`; full form
   "Trimester 1, 2026" for headings.
 - **GPA on Griffith's 0-7 scale.**
-- **Student numbers** as `s` + 7 digits.
+- **Student numbers** as `s` + 7 digits — HDR candidates have these too.
+- **Both Griffith domains** are valid for applicants; neither implies a role.
 - **Campuses:** Nathan, Gold Coast, Mount Gravatt, South Bank, Logan, Online.
 - **Australian English** throughout the interface.
 - No Supabase types outside `src/lib/provider/supabase/`.

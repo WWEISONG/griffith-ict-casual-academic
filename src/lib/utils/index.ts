@@ -20,11 +20,15 @@ export function isGriffithEmail(email: string): boolean {
 }
 
 /**
- * Staff use @griffith.edu.au; students use @griffithuni.edu.au.
- * Used to pick a sensible default role at registration.
+ * Both Griffith domains are valid for applicants.
+ *
+ * Role is deliberately NOT derived from the domain: HDR candidates (PhD
+ * students) hold @griffith.edu.au addresses just as staff do, so the domain
+ * cannot tell a professor from a PhD student who wants to tutor. Everyone who
+ * self-registers is a student; staff accounts are created by an administrator.
  */
-export function inferRoleFromEmail(email: string): 'student' | 'lecturer' {
-  return emailDomain(email) === 'griffith.edu.au' ? 'lecturer' : 'student'
+export function isStaffDomain(email: string): boolean {
+  return emailDomain(email) === 'griffith.edu.au'
 }
 
 export function formatDate(iso?: string | null, opts?: Intl.DateTimeFormatOptions): string {

@@ -81,8 +81,8 @@ talks to directly over HTTPS. No server of our own to operate.
 
 ```mermaid
 flowchart LR
-    subgraph student["Student"]
-        s1["Register with<br/>Griffith email"] --> s2["Record teaching<br/>history"] --> s3["Rank preferred<br/>courses"] --> s4["Write statement"] --> s5["Submit"]
+    subgraph student["Student (incl. HDR candidates)"]
+        s1["Self-register<br/>always a student"] --> s2["Record teaching<br/>history"] --> s3["Rank preferred<br/>courses"] --> s4["Write statement"] --> s5["Submit"]
     end
 
     subgraph convenor["Course convenor"]
@@ -90,7 +90,7 @@ flowchart LR
     end
 
     subgraph admin["Administrator"]
-        a1["Open recruitment<br/>round"] --> a2["Assign convenors<br/>to courses"] --> a3["Monitor coverage<br/>across 187 courses"] --> a4["Export for HR"]
+        a1["Open recruitment<br/>round"] --> a0["Create staff<br/>accounts"] --> a2["Assign convenors<br/>to courses"] --> a3["Monitor coverage<br/>across 187 courses"] --> a4["Export for HR"]
     end
 
     s5 ==> c1
@@ -179,6 +179,7 @@ Ten tables plus an append-only `audit_log`. Two views (`applicant_rows`,
 
 | Decision | Reason |
 |---|---|
+| Self-registration cannot grant staff access | HDR candidates hold `@griffith.edu.au` addresses, so the domain identifies nobody. Staff accounts are provisioned by an administrator instead. |
 | Course code is the primary key, not a surrogate id | `2801ICT` is already a stable, universally understood identifier at Griffith. A synthetic id would add joins and confuse exports. |
 | Ranked preferences in a child table, not an array | Lets a convenor query "who put *my* course first" directly, and enforces distinct ranks with a unique constraint. |
 | Experience separate from applications | A tutor's teaching record persists across trimesters; it is a property of the person, not of one application. |
@@ -217,9 +218,11 @@ Specific controls:
 - **Registration is restricted to Griffith domains** by a `CHECK` constraint on
   `profiles.email` *and* by the `handle_new_user()` trigger — not merely by
   form validation.
-- **Role is derived from the email domain server-side.** A student cannot
-  register as a lecturer; `@griffithuni.edu.au` always yields `student`.
-  Promotion to `admin` is only ever done by an existing admin.
+- **Self-registration always creates a student**, whichever Griffith domain is
+  used. The role is never read from `raw_user_meta_data`, which the client
+  controls at signup — trusting it would let anyone register as a lecturer.
+  Promotion to `lecturer` or `admin` happens only through an administrator,
+  after the account exists.
 - **Users cannot escalate their own privileges.** A trigger blocks any
   self-update that changes `role`, `is_active` or `email`.
 - **Drafts are invisible to staff.** `can_view_application()` excludes

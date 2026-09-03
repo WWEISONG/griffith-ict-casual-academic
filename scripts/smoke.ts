@@ -120,6 +120,19 @@ async function main() {
   })
   check('new student registers as a student', fresh.profile.role === 'student')
 
+  // HDR candidates hold @griffith.edu.au addresses, so the domain must NOT
+  // grant staff access. Self-registration always yields a student.
+  const phd = await p.register({
+    email: 'shaoqing.wang@griffith.edu.au', password: 'password123',
+    fullName: 'Shaoqing Wang', studentNumber: 's8888888',
+    program: 'PhD (Information and Communication Technology)',
+  })
+  check('a @griffith.edu.au self-registration is a STUDENT, not staff',
+        phd.profile.role === 'student', `got role=${phd.profile.role}`)
+
+  await expectReject('a self-registered @griffith.edu.au user cannot list applicants', () =>
+    p.listApplicants({}))
+
   const round = await p.getActiveRound()
   const draft = await p.saveApplication({
     roundId: round!.id, statement: 'Too short.', hoursPerWeek: 6,

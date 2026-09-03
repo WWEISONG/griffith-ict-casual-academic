@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { Button, Field, Input, Select } from '@/components/ui'
 import { AuthLayout } from './AuthLayout'
-import { emailDomain, isGriffithEmail } from '@/lib/utils'
+import { isGriffithEmail } from '@/lib/utils'
 
 const CAMPUSES = ['Nathan', 'Gold Coast', 'Mount Gravatt', 'South Bank', 'Logan', 'Online']
 
@@ -38,25 +38,20 @@ export function Register() {
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }))
 
-  const domain = emailDomain(form.email)
-  // Staff addresses are @griffith.edu.au; students are @griffithuni.edu.au.
-  const isStaffAddress = domain === 'griffith.edu.au'
-  const showStudentFields = !isStaffAddress
-
   const emailError = useMemo(() => {
     if (!form.email) return undefined
     if (!isGriffithEmail(form.email)) {
-      return 'Use your Griffith address — @griffithuni.edu.au for students, @griffith.edu.au for staff.'
+      return 'Use your Griffith University address (@griffithuni.edu.au or @griffith.edu.au).'
     }
     return undefined
   }, [form.email])
 
   const studentNumberError = useMemo(() => {
-    if (!showStudentFields || !form.studentNumber) return undefined
+    if (!form.studentNumber) return undefined
     return /^s\d{7}$/.test(form.studentNumber.trim())
       ? undefined
       : 'Student numbers look like s1234567.'
-  }, [form.studentNumber, showStudentFields])
+  }, [form.studentNumber])
 
   const passwordError = useMemo(() => {
     if (!form.password) return undefined
@@ -70,7 +65,7 @@ export function Register() {
     form.fullName.trim().length > 1 &&
     isGriffithEmail(form.email) &&
     !passwordError && !confirmError && form.confirm &&
-    (!showStudentFields || (/^s\d{7}$/.test(form.studentNumber.trim()) && form.program))
+    /^s\d{7}$/.test(form.studentNumber.trim()) && Boolean(form.program)
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -81,8 +76,8 @@ export function Register() {
         email: form.email,
         password: form.password,
         fullName: form.fullName,
-        studentNumber: showStudentFields ? form.studentNumber.trim() : undefined,
-        program: showStudentFields ? form.program : undefined,
+        studentNumber: form.studentNumber.trim(),
+        program: form.program,
         campus: form.campus || undefined,
       })
       navigate('/app')
@@ -115,8 +110,8 @@ export function Register() {
 
   return (
     <AuthLayout
-      title="Create your account"
-      subtitle="Griffith students and staff only."
+      title="Apply to tutor"
+      subtitle="For Griffith students, including higher degree research candidates."
       footer={<>Already registered? <Link to="/login" className="font-medium text-griffith-700 hover:underline">Sign in</Link></>}
     >
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
@@ -133,7 +128,7 @@ export function Register() {
 
         <Field
           label="Griffith email" htmlFor="email" required error={emailError}
-          hint={!form.email ? 'Students: @griffithuni.edu.au · Staff: @griffith.edu.au' : undefined}
+          hint={!form.email ? 'Either @griffithuni.edu.au or @griffith.edu.au.' : undefined}
         >
           <Input id="email" type="email" required autoComplete="username"
                  aria-invalid={Boolean(emailError)}
@@ -141,32 +136,19 @@ export function Register() {
                  value={form.email} onChange={set('email')} />
         </Field>
 
-        {isGriffithEmail(form.email) && (
-          <div className="rounded-lg border border-ink-200 bg-ink-50 px-3.5 py-2.5 text-xs text-ink-600">
-            Your account will be created as{' '}
-            <strong className="font-semibold text-ink-900">
-              {isStaffAddress ? 'staff (course convenor)' : 'a student applicant'}
-            </strong>
-            , based on your email domain.
-          </div>
-        )}
+        <Field label="Student number" htmlFor="studentNumber" required error={studentNumberError}
+               hint="Higher degree research candidates have one too.">
+          <Input id="studentNumber" required placeholder="s1234567"
+                 aria-invalid={Boolean(studentNumberError)}
+                 value={form.studentNumber} onChange={set('studentNumber')} />
+        </Field>
 
-        {showStudentFields && (
-          <>
-            <Field label="Student number" htmlFor="studentNumber" required error={studentNumberError}>
-              <Input id="studentNumber" required placeholder="s1234567"
-                     aria-invalid={Boolean(studentNumberError)}
-                     value={form.studentNumber} onChange={set('studentNumber')} />
-            </Field>
-
-            <Field label="Program" htmlFor="program" required>
-              <Select id="program" required value={form.program} onChange={set('program')}>
-                <option value="">Select your program…</option>
-                {PROGRAMS.map((p) => <option key={p} value={p}>{p}</option>)}
-              </Select>
-            </Field>
-          </>
-        )}
+        <Field label="Program" htmlFor="program" required>
+          <Select id="program" required value={form.program} onChange={set('program')}>
+            <option value="">Select your program…</option>
+            {PROGRAMS.map((p) => <option key={p} value={p}>{p}</option>)}
+          </Select>
+        </Field>
 
         <Field label="Campus" htmlFor="campus">
           <Select id="campus" value={form.campus} onChange={set('campus')}>
@@ -194,6 +176,17 @@ export function Register() {
         <p className="text-xs leading-relaxed text-ink-500">
           Your details are used to assess casual academic applications within the School
           of ICT and are visible to the convenors of the courses you nominate.
+        </p>
+
+        {/* Staff accounts are provisioned by the School, not self-registered,
+            because a Griffith staff address does not distinguish a convenor
+            from an HDR candidate. */}
+        <p className="border-t border-ink-200 pt-4 text-xs leading-relaxed text-ink-500">
+          <strong className="font-medium text-ink-700">Course convenor?</strong>{' '}
+          Staff accounts are set up by the School administrator — contact{' '}
+          <a href="mailto:w.song@griffith.edu.au?subject=Casual%20Academic%20Portal%20—%20convenor%20access"
+             className="font-medium text-griffith-700 hover:underline">w.song@griffith.edu.au</a>{' '}
+          rather than registering here.
         </p>
       </form>
     </AuthLayout>

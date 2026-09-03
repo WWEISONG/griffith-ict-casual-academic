@@ -19,7 +19,7 @@ import type {
   ApplicantFilter, ApplicationDraft, AuthSession, DataProvider, RegisterInput,
 } from '../types'
 import { ICT_COURSES, COURSE_BY_CODE } from '@/data/courses'
-import { isGriffithEmail, inferRoleFromEmail, uid, toCsv } from '@/lib/utils'
+import { isGriffithEmail, uid, toCsv } from '@/lib/utils'
 import {
   LOCAL_PASSWORD, SEED_APPLICATIONS, SEED_ASSIGNMENTS, SEED_CONTACT_LOG,
   SEED_COURSE_LECTURERS, SEED_EXPERIENCE, SEED_NOTES, SEED_PROFILES, SEED_ROUNDS,
@@ -163,8 +163,10 @@ export class LocalProvider implements DataProvider {
     }
     if (input.password.length < 8) throw new Error('Your password must be at least 8 characters.')
 
-    const role = inferRoleFromEmail(email)
-    if (role === 'student' && !input.studentNumber?.match(/^s\d{7}$/)) {
+    // Self-registration always creates a student, matching handle_new_user().
+    // Staff accounts are created by an administrator.
+    const role: Profile['role'] = 'student'
+    if (!input.studentNumber?.match(/^s\d{7}$/)) {
       throw new Error('Enter your Griffith student number in the format s1234567.')
     }
 
@@ -174,7 +176,7 @@ export class LocalProvider implements DataProvider {
       email,
       fullName: input.fullName.trim(),
       role,
-      studentNumber: role === 'student' ? input.studentNumber! : null,
+      studentNumber: input.studentNumber!,
       program: input.program ?? null,
       campus: (input.campus as Profile['campus']) ?? null,
       isActive: true,
