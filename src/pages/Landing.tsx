@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { Button } from '@/components/ui'
 import { Brand } from '@/components/ui/Brand'
 import { useAuth } from '@/lib/auth/AuthContext'
@@ -9,18 +9,20 @@ import { useAuth } from '@/lib/auth/AuthContext'
  *   /            candidates — the link given to students
  *   /#/staff     course convenors — the link given to staff
  *
- * Neither redirects a signed-in visitor away. They used to, which meant a
- * convenor opening the candidate link landed in the convenor view without
- * explanation, and anyone on a shared machine could not reach the entrance at
- * all. Now the page says who is signed in and offers both continuing and
- * signing out.
+ * A signed-in visitor whose role matches the entrance goes straight in; there
+ * is nothing to decide, so there is no button to press. A mismatch stops here
+ * instead — a convenor opening the candidate link used to be dropped into the
+ * convenor view with no explanation, and on a shared machine the previous
+ * person's session made the entrance unreachable.
  *
  * These are signposts, not gates: the site is static, so anyone can reach
  * either URL. The boundary is in the database.
  */
-function Shell({ children }: { children: React.ReactNode }) {
+function Shell({ forStaff, children }: { forStaff: boolean; children: React.ReactNode }) {
   const { session, profile, role, signOut } = useAuth()
-  const navigate = useNavigate()
+
+  const isStaff = role === 'lecturer' || role === 'admin'
+  if (session && isStaff === forStaff) return <Navigate to="/app" replace />
 
   const roleLabel = role === 'admin' ? 'Administrator'
     : role === 'lecturer' ? 'Course convenor' : 'Candidate'
@@ -40,15 +42,13 @@ function Shell({ children }: { children: React.ReactNode }) {
 
         {session ? (
           <div className="mt-8 rounded-xl border border-ink-200 bg-white p-5">
-            <p className="text-sm text-ink-600">Signed in as</p>
-            <p className="mt-0.5 font-medium text-ink-900">{profile?.fullName}</p>
-            <p className="text-xs text-ink-500">{roleLabel}</p>
-            <div className="mt-4 flex flex-col gap-2.5">
-              <Button size="lg" onClick={() => navigate('/app')}>Continue</Button>
-              <Button variant="secondary" size="lg" onClick={() => signOut()}>
-                Sign out
-              </Button>
-            </div>
+            <p className="text-sm text-ink-600">
+              Signed in as <span className="font-medium text-ink-900">{profile?.fullName}</span>
+              {' '}({roleLabel})
+            </p>
+            <Button variant="secondary" size="lg" className="mt-4 w-full" onClick={() => signOut()}>
+              Sign out
+            </Button>
           </div>
         ) : children}
       </main>
@@ -59,7 +59,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 /** Default entrance. Students are the great majority of visitors. */
 export function Landing() {
   return (
-    <Shell>
+    <Shell forStaff={false}>
       <div className="mt-8 flex flex-col gap-2.5">
         <Link to="/login" className="block">
           <Button size="lg" className="w-full">Apply to tutor</Button>
@@ -75,7 +75,7 @@ export function Landing() {
 /** The entrance given to course convenors. */
 export function StaffLanding() {
   return (
-    <Shell>
+    <Shell forStaff>
       <div className="mt-8">
         <Link to="/login?staff=1" className="block">
           <Button size="lg" className="w-full">Staff sign in</Button>
