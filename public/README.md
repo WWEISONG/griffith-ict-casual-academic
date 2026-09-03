@@ -1,26 +1,17 @@
 # Static assets
 
-## griffith-logo.svg — not yet supplied
+## cap-logo.svg
 
-Save the official Griffith University logo here, named exactly
-`griffith-logo.svg`. It then appears automatically on the landing page, the
-sign-in and register pages, and in both application headers. No code change is
-needed — commit the file and push.
+The product mark: **CAP**, for Casual Academic Portal — drawn as a mortarboard,
+since the initials name one. It appears on both entrances, the sign-in and
+register pages, and in the application header.
 
-**Where to get it:** Griffith's brand resources, via Marketing and
-Communications. Staff have access. Do not copy it from a web page: the brand
-portal publishes the correct colour variants, clear-space rules and file
-formats, and using the approved asset is what keeps the system compliant with
-university brand policy.
+This is the system's own mark, not Griffith's crest. The university's identity
+is carried by the words beside it ("School of ICT · Griffith University"). An
+approximated crest would read as official while being wrong, which is worse
+than not drawing one at all.
 
-**Until it is present, no mark is shown at all.** Earlier builds drew a red
-tile — first a "G", then the word "Griffith" — which looked like a logo without
-being one. That was wrong: a stand-in imitating a university's brand reads as
-official while being incorrect. Plain typography is the honest fallback.
-
-A `.png` works too; update the extension in `src/components/ui/Brand.tsx`.
-
-## Favicon
-
-`index.html` currently uses a plain red square with no lettering. Replace it
-with the official favicon when you have one.
+**To use Griffith's approved logo instead:** get the asset from Griffith
+Marketing's brand resources, save it as `griffith-logo.svg`, and change the
+filename in `src/components/ui/Brand.tsx`. The favicon in `index.html` carries
+the same mark inline and would need updating too.

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Casual Academic Portal">
+  <title>Casual Academic Portal</title>
+  <!--
+    CAP — Casual Academic Portal. A mortarboard, because the initials name one.
+    Flat geometry, optically centred with the tassel counted as part of the
+    silhouette, so it stays balanced at 28px in the header and at 16px as a
+    favicon.
+  -->
+  <rect width="64" height="64" rx="15" fill="#B60A20"/>
+
+  <!-- Board. -->
+  <path d="M32 18 L51 27 L32 36 L13 27 Z" fill="#ffffff"/>
+
+  <!-- Cap beneath, tucked under the board's near edge. -->
+  <path d="M22 30.5 v8.4 c0 2.9 4.5 5.2 10 5.2 s10-2.3 10-5.2 v-8.4 L32 36 Z"
+        fill="#ffffff" fill-opacity="0.85"/>
+
+  <!-- Tassel. Kept short so it reads as a detail, not a second element. -->
+  <path d="M49 27.5 v9" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <circle cx="49" cy="39.3" r="2.7" fill="#ffffff"/>
+</svg>
