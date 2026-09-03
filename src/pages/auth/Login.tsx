@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { backendIsLive } from '@/lib/provider'
 import { LOCAL_PASSWORD } from '@/lib/provider/mock/seed'
@@ -19,9 +19,16 @@ const SAMPLE_ACCOUNTS = [
   { email: 'liam.chen@griffithuni.edu.au', role: 'Student applicant' },
 ]
 
+/** Address staff should contact for an account. */
+const ADMIN_CONTACT = 'w.song@griffith.edu.au'
+
 export function Login() {
   const { signIn } = useAuth()
   const navigate = useNavigate()
+  // The landing page's "Staff sign in" button arrives with ?staff=1. Staff
+  // accounts are created by the School, so that route must not offer signup.
+  const [params] = useSearchParams()
+  const staffMode = params.get('staff') === '1'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -47,8 +54,20 @@ export function Login() {
   return (
     <AuthLayout
       title="Sign in"
-      subtitle="Use your Griffith University account."
-      footer={<>New here? <Link to="/register" className="font-medium text-griffith-700 hover:underline">Create an account</Link></>}
+      subtitle={staffMode
+        ? 'For course convenors and School administrators.'
+        : 'Use your Griffith University account.'}
+      footer={staffMode ? (
+        <>
+          Staff accounts are created by the School administrator.<br />
+          <a href={`mailto:${ADMIN_CONTACT}?subject=${encodeURIComponent('Casual Academic Portal — convenor access')}`}
+             className="font-medium text-griffith-700 hover:underline">
+            {ADMIN_CONTACT}
+          </a>
+        </>
+      ) : (
+        <>New here? <Link to="/register" className="font-medium text-griffith-700 hover:underline">Create an account</Link></>
+      )}
     >
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         {error && (
@@ -60,7 +79,7 @@ export function Login() {
         <Field label="Griffith email" htmlFor="email" required>
           <Input
             id="email" type="email" autoComplete="username" required autoFocus
-            placeholder="s1234567@griffithuni.edu.au"
+            placeholder={staffMode ? 'j.citizen@griffith.edu.au' : 's1234567@griffithuni.edu.au'}
             value={email} onChange={(e) => setEmail(e.target.value)}
           />
         </Field>

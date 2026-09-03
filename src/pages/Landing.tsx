@@ -51,7 +51,7 @@ export function Landing() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/register"><Button size="lg">Apply to tutor</Button></Link>
-            <Link to="/login"><Button variant="secondary" size="lg">Staff sign in</Button></Link>
+            <Link to="/login?staff=1"><Button variant="secondary" size="lg">Staff sign in</Button></Link>
           </div>
           <p className="mt-4 text-sm text-ink-500">
             Open to Griffith students and staff. Sign in with your university account.
