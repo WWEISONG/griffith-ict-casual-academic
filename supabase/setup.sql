@@ -499,7 +499,12 @@ end $$;
 -- One row per (application, nominated course). Staff see the rows for courses
 -- they teach; admins see all. Underlying RLS still applies to the base tables.
 -- ---------------------------------------------------------------------------
-create or replace view public.applicant_rows
+-- Dropped first, not replaced: "create or replace view" cannot change a view's
+-- column list, so a later migration that adds a column would make this fail on
+-- a re-run.
+drop view if exists public.applicant_rows;
+
+create view public.applicant_rows
 with (security_invoker = true)
 as
 select
@@ -533,7 +538,9 @@ where a.status <> 'draft';
 -- ---------------------------------------------------------------------------
 -- Course demand summary, for the recruitment dashboard.
 -- ---------------------------------------------------------------------------
-create or replace view public.course_demand
+drop view if exists public.course_demand;
+
+create view public.course_demand
 with (security_invoker = true)
 as
 select

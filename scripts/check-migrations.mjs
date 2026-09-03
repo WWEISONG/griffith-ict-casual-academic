@@ -27,10 +27,12 @@ for (const file of readdirSync(dir).filter((f) => f.endsWith('.sql')).sort()) {
     }
   }
 
-  // Views must be replaceable too.
-  for (const m of sql.matchAll(/^\s*create\s+view\s+([\w.]+)/gim)) {
+  // Views must be dropped before being created — including with "or replace",
+  // which cannot change a view's column list, so any later migration that adds
+  // a column breaks the earlier one on a re-run.
+  for (const m of sql.matchAll(/create\s+(?:or\s+replace\s+)?view\s+([\w.]+)/gi)) {
     if (!new RegExp(`drop\\s+view\\s+if\\s+exists\\s+${m[1].replace('.', '\\.')}`, 'i').test(sql)) {
-      problems.push(`${file}: view "${m[1]}" — use "create or replace view", or drop it first`)
+      problems.push(`${file}: view "${m[1]}" — add "drop view if exists ${m[1]};" before creating it`)
     }
   }
 
