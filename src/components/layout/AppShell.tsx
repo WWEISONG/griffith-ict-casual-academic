@@ -80,7 +80,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="hidden text-right sm:block">
               <p className="text-sm font-medium leading-tight text-ink-900">{profile?.fullName}</p>
               <p className="text-[11px] capitalize leading-tight text-ink-500">
-                {role === 'admin' ? 'Administrator' : role === 'lecturer' ? 'Course convenor' : 'Applicant'}
+                {role === 'admin' ? 'Administrator' : role === 'lecturer' ? 'Course convenor' : 'Candidate'}
               </p>
             </div>
             <Avatar name={profile?.fullName ?? '?'} size={32} />

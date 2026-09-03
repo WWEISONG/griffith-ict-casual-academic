@@ -267,7 +267,7 @@ async function main() {
 
   alter table public.profiles disable trigger profiles_guard_self_update;
   update public.profiles
-     set role = 'lecturer', position = 'Course Convenor', student_number = null
+     set role = 'lecturer', position = 'Course convenor', student_number = null
    where email = '${LECTURER.email}';
   alter table public.profiles enable trigger profiles_guard_self_update;
 

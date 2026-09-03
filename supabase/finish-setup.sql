@@ -52,7 +52,7 @@ alter table public.profiles disable trigger profiles_guard_self_update;
 
 update public.profiles
    set role           = 'lecturer',
-       position       = 'Course Convenor',
+       position       = 'Course convenor',
        student_number = null
  where email = 'sample.convenor@griffith.edu.au';
 
