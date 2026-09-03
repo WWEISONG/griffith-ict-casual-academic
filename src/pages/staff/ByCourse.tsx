@@ -92,10 +92,7 @@ export function ByCourse() {
 
   return (
     <>
-      <PageHeader
-        title="By course"
-        description="Pick a course to see who could teach it."
-      />
+      <PageHeader title="By course" />
 
       <Card className="mb-5">
         <div className="p-4">

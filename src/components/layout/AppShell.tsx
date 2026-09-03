@@ -29,15 +29,13 @@ function Icon({ path }: { path: ReactNode }) {
 
 // Deliberately short. Convenors open this system a handful of times a
 // trimester; every extra nav item is something they have to think about.
-// Two lists, because convenors arrive with one of two questions: "who could
-// teach this course?" and "who is this person?".
 const LECTURER_NAV: NavItem[] = [
-  { to: '/app', label: 'Find a tutor', icon: <Icon path={I.users} />, end: true },
+  { to: '/app', label: 'All candidates', icon: <Icon path={I.users} />, end: true },
   { to: '/app/courses', label: 'By course', icon: <Icon path={I.book} /> },
 ]
 
 const ADMIN_NAV: NavItem[] = [
-  { to: '/app', label: 'Find a tutor', icon: <Icon path={I.users} />, end: true },
+  { to: '/app', label: 'All candidates', icon: <Icon path={I.users} />, end: true },
   { to: '/app/courses', label: 'By course', icon: <Icon path={I.book} /> },
   { to: '/app/allocations', label: 'Allocations', icon: <Icon path={I.clip} /> },
   { to: '/app/people', label: 'Accounts', icon: <Icon path={I.cog} /> },

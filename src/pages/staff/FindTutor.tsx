@@ -79,8 +79,7 @@ export function FindTutor() {
   return (
     <>
       <PageHeader
-        title="Find a tutor"
-        description="Everyone registered with the School, with what they have taught and what they have asked to teach."
+        title="All candidates"
         action={
           <div className="flex gap-2">
             <Button variant="secondary" onClick={emailAll} disabled={rows.length === 0}>Email these</Button>
