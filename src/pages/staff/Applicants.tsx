@@ -86,6 +86,33 @@ export function Applicants() {
     } catch (e) { push('error', (e as Error).message) } finally { setBusy(false) }
   }
 
+  /** Addresses for the current selection, de-duplicated. */
+  function selectedEmails(): string[] {
+    const wanted = new Set([...selected].map((k) => k.split('::')[0]))
+    return [...new Set(rows.filter((r) => wanted.has(r.applicationId)).map((r) => r.email))]
+  }
+
+  async function copyEmails() {
+    const list = selectedEmails().join('; ')
+    try {
+      await navigator.clipboard.writeText(list)
+      push('success', `${selectedEmails().length} email ${selectedEmails().length === 1 ? 'address' : 'addresses'} copied.`)
+    } catch {
+      // Clipboard access can be refused; fall back to something usable.
+      window.prompt('Copy these addresses:', list)
+    }
+  }
+
+  /** Group email with everyone on Bcc, so applicants do not see each other. */
+  function groupMailto(): string {
+    const list = selectedEmails().join(',')
+    const params = new URLSearchParams({
+      bcc: list,
+      subject: `ICT tutoring — ${courseCode || 'School of ICT'}`,
+    })
+    return `mailto:?${params.toString().replace(/\+/g, '%20')}`
+  }
+
   async function exportCsv() {
     try {
       const csv = await provider.exportApplicantsCsv(filter)
@@ -163,6 +190,11 @@ export function Applicants() {
                 {label}
               </Button>
             ))}
+            <span className="mx-1 w-px self-stretch bg-griffith-200" aria-hidden="true" />
+            <Button size="sm" variant="secondary" onClick={copyEmails}>Copy emails</Button>
+            <a href={groupMailto()}>
+              <Button size="sm" variant="secondary">Email all</Button>
+            </a>
           </div>
           <button onClick={() => setSelected(new Set())}
                   className="ml-auto text-sm font-medium text-ink-600 hover:text-ink-900">
@@ -226,6 +258,15 @@ export function Applicants() {
                           <Avatar name={r.fullName} size={32} />
                           <div className="min-w-0">
                             <p className="truncate font-medium text-ink-900">{r.fullName}</p>
+                            {/* Contact happens over email, so the address belongs
+                                here rather than one click away. */}
+                            <a
+                              href={`mailto:${r.email}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="truncate block text-xs text-griffith-700 hover:underline"
+                            >
+                              {r.email}
+                            </a>
                             <p className="truncate text-xs text-ink-500">{r.studentNumber} · {r.program ?? '—'}</p>
                           </div>
                         </div>

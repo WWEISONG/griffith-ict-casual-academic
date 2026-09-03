@@ -297,21 +297,29 @@ isolated to `0002_functions.sql` and `0003_rls.sql`.
 Stated plainly, because a prototype that oversells itself is worse than one
 that does not.
 
-1. **No email notifications.** Convenors contact applicants through their own
-   mail client; the system pre-writes the message and logs that contact
-   occurred. Automated email needs a sending domain approved by Griffith IT.
-2. **No file uploads.** CVs are linked, not stored, avoiding storage-policy
+1. **No file uploads.** CVs are linked, not stored, avoiding storage-policy
    questions in V1.
-3. **No Griffith single sign-on.** Registration is by Griffith email with a
+2. **No Griffith single sign-on.** Registration is by Griffith email with a
    separate password. SSO requires Griffith IT to register the application as
    an identity provider client.
-4. **Course catalogue is a point-in-time snapshot** (September 2026, 187
+3. **Course catalogue is a point-in-time snapshot** (September 2026, 187
    courses). No live feed from the Griffith course system exists to consume.
-5. **Convenor assignment is manual.** An administrator assigns courses to
+4. **Convenor assignment is manual.** An administrator assigns courses to
    convenors; there is no automatic feed from the timetabling system.
-6. **GPA is self-reported.** There is no student-records integration to verify
+5. **GPA is self-reported.** There is no student-records integration to verify
    it, so convenors should treat it as indicative.
 
-Items 1, 3 and 4 all become straightforward once the School has an
+Items 2, 3 and 4 all become straightforward once the School has an
 integration agreement with Griffith IT — which is a reasonable thing to seek
 on the strength of a working prototype.
+
+### Not a limitation: contact happens over email
+
+Convenors contact applicants from their own mail address, outside the system.
+This is deliberate, not a gap. A message from a convenor carries more weight
+than an automated notification, both parties already work in email, and no
+Griffith-approved sending domain is required. The system's job is to make that
+contact easy and traceable: it supplies the applicant's details, opens the
+convenor's mail client with the message already written, and records that
+contact took place so a second convenor does not approach the same candidate
+unknowingly.

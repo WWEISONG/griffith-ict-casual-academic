@@ -95,7 +95,8 @@ RLS policies are plain PostgreSQL and carry across to RDS unchanged.
 | Course code as primary key | `2801ICT` is already a stable, universally understood Griffith identifier. |
 | Experience separate from applications | A teaching record belongs to the person and persists across trimesters. |
 | Allocations separate from applications | An accepted application is a decision; an allocation is an operational fact with hours and a trimester. Conflating them makes multi-course tutors unrepresentable. |
-| `contact_log` table | Contact happens over email, outside the system. Without a log, two convenors can approach the same candidate unknowingly. |
+| Contact happens over email, not in-app | Convenors and candidates already live in email, and a message from a convenor's own address carries more weight than a system notification. The system pre-writes the message and opens their mail client; it does not try to become an inbox. This also avoids needing a sending domain approved by Griffith IT. |
+| `contact_log` table | Because contact happens outside the system, a log is what stops two convenors approaching the same candidate unknowingly. |
 | Hash routing | Static hosting cannot rewrite unknown paths to `index.html`; deep links would 404 on refresh. Switch to path routing after the AWS move. |
 | T1 / T2 / T3 shorthand | Griffith runs trimesters. Constrained to `1|2|3` in the schema so "Semester 1" cannot appear in the data later. |
 
@@ -132,15 +133,14 @@ RLS policies are plain PostgreSQL and carry across to RDS unchanged.
 
 Stated plainly — an honest prototype is more useful than an oversold one.
 
-1. **Email notifications.** Needs a sending domain approved by Griffith IT.
-2. **Griffith single sign-on.** Needs the application registered as an identity
+1. **Griffith single sign-on.** Needs the application registered as an identity
    provider client by Griffith IT.
-3. **Live course catalogue feed.** Currently a September 2026 snapshot.
-4. **File uploads.** CVs are linked, not stored.
-5. **Automatic convenor assignment** from the timetabling system.
-6. **GPA verification** against student records — currently self-reported.
+2. **Live course catalogue feed.** Currently a September 2026 snapshot.
+3. **File uploads.** CVs are linked, not stored.
+4. **Automatic convenor assignment** from the timetabling system.
+5. **GPA verification** against student records — currently self-reported.
 
-Items 1, 3 and 5 become straightforward once the School has an integration
+Items 1, 2 and 4 become straightforward once the School has an integration
 agreement with Griffith IT, which is a reasonable thing to seek on the strength
 of a working prototype.
 
