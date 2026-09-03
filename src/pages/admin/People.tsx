@@ -72,7 +72,7 @@ export function People() {
             <table className="w-full min-w-[46rem] text-sm">
               <thead className="border-b border-ink-200 bg-ink-50 text-left">
                 <tr className="text-xs font-medium text-ink-500">
-                  <th scope="col" className="px-4 py-2.5">Person</th>
+                  <th scope="col" className="px-4 py-2.5">Account</th>
                   <th scope="col" className="px-4 py-2.5">Role</th>
                   <th scope="col" className="px-4 py-2.5">Program / position</th>
                   <th scope="col" className="px-4 py-2.5">Joined</th>

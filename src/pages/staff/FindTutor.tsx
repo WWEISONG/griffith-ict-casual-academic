@@ -81,7 +81,7 @@ export function FindTutor() {
             placeholder="Search name, email, student number or program…"
             value={search}
             onChange={(e) => setParam('q', e.target.value)}
-            aria-label="Search people"
+            aria-label="Search candidates"
           />
           <Select value={course} onChange={(e) => setParam('course', e.target.value)}
                   aria-label="Filter by course">
@@ -100,7 +100,7 @@ export function FindTutor() {
           )}
           <span className="ml-auto">
             {state.loading ? 'Loading…'
-              : `${rows.length} ${rows.length === 1 ? 'person' : 'people'} · ${experienced} with teaching experience`}
+              : `${rows.length} ${rows.length === 1 ? 'candidate' : 'candidates'} · ${experienced} with teaching experience`}
           </span>
         </div>
       </Card>
@@ -110,17 +110,17 @@ export function FindTutor() {
          : state.error ? <ErrorState message={state.error} onRetry={state.reload} />
          : rows.length === 0 ? (
           <EmptyState
-            title={course ? `Nobody is connected to ${course} yet` : 'No one has registered yet'}
+            title={course ? `No candidates for ${course} yet` : 'No candidates yet'}
             description={course
-              ? 'Nobody has taught this course or asked to. Try "Any course", or check back as students register.'
-              : 'People appear here as soon as they register, whether or not they have applied.'}
+              ? 'Nobody has taught this course or applied for it. Try "Any course".'
+              : 'Candidates appear here as soon as they register, whether or not they have applied.'}
           />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[54rem] text-sm">
               <thead className="border-b border-ink-200 bg-ink-50 text-left">
                 <tr className="text-xs font-medium text-ink-500">
-                  <th scope="col" className="px-4 py-2.5">Person</th>
+                  <th scope="col" className="px-4 py-2.5">Candidate</th>
                   <th scope="col" className="px-4 py-2.5">Teaching experience</th>
                   <th scope="col" className="px-4 py-2.5">Applied courses</th>
                   <th scope="col" className="px-4 py-2.5 text-center">Load</th>

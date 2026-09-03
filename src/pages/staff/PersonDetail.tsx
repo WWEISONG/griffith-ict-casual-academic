@@ -38,7 +38,7 @@ export function PersonDetail() {
 
   if (state.loading) return <LoadingState />
   if (state.error) return <ErrorState message={state.error} onRetry={state.reload} />
-  if (!state.data?.person) return <EmptyState title="Person not found" />
+  if (!state.data?.person) return <EmptyState title="Candidate not found" />
 
   const { person, experience, assignments, application, row } = state.data
   const active = assignments.filter((a) => a.status !== 'cancelled')
