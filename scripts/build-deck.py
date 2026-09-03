@@ -13,6 +13,7 @@ from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
+import math
 
 # --- palette, taken from the author's existing decks -------------------------
 INK    = RGBColor(0x11, 0x11, 0x11)
@@ -153,102 +154,89 @@ tf = box(s, Inches(0.38), Inches(5.00), Inches(11.5), Inches(1.0))
 para(tf, "Wei Song  ·  School of Information and Communication Technology", 21,
      first=True, after=6)
 para(tf, "Proposal to the Head of School  —  September 2026", 14, color=GREY, after=0)
-notes(s, "Two halves. A system that makes tutors findable — built, deployed, and I can "
-         "demonstrate it today. And the training program, which is what I am asking the "
-         "School to endorse.")
+notes(s, "Two halves. A tutor pool that makes candidates findable — built, deployed, "
+         "and I can demonstrate it today. And the training that makes them ready, which "
+         "is what I am asking the School to endorse.")
 
-# ============================================================ 2. The problem
+# ============================================================ 2. Why a pool
 s = slide()
-y = head(s, "We Appoint Tutors Every Trimester,\nand Prepare None of Them",
-         "A new tutor's readiness depends entirely on which convenor hired them.")
-tf = box(s, L, y, Inches(7.1), Inches(3.4))
-bullets(tf, [
-    "Some receive a thorough handover; some are told the room number",
-    "No School standard for what a tutor should be able to do before teaching",
-    "No shared model of how an ICT tutorial or lab is run",
-    "No marking calibration between tutors on the same course",
-    "No record of who has been prepared, so nothing carries forward",
-])
-stat(s, Inches(2.00), "187", "Courses in the School, staffed by casual academics")
-stat(s, Inches(3.65), "Every trimester", "We appoint tutors, demonstrators and markers", BLUE)
-stat(s, Inches(5.30), "No standard", "For teaching preparation, at any level of the School", ORANGE)
-foot(s, "The gap is not the convenors' — there is nothing for them to hand over to.")
-notes(s, "This is not a criticism of convenors. There is no shared model, no materials "
-         "and no record of who has taught what, so each of them starts from nothing.")
+y = head(s, "Why the School Needs a Casual Academic Pool",
+         "Convenors cannot staff a course well if they cannot see who is available.")
 
-# ============================================================ 3. The gap
-s = slide()
-y = head(s, "Griffith Covers Compliance.\nNobody Covers Teaching.",
-         "What a casual academic receives today, and what it does not include.")
-rows = [("Mandatory onboarding", "WHS, integrity, privacy, equity"),
-        ("Casual Staff Time Recording", "Timesheets and payment"),
-        ("How to engage sessional staff", "Guidance for the hiring academic"),
-        ("Tutoring for Success", "A different program, a different cohort")]
-colw = [Inches(4.6), Inches(5.4), Inches(2.6)]
-rect(s, L, y, sum(colw, Emu(0)), Inches(0.46), INK)
-cx = L
-for i, h2 in enumerate(["Provision", "What it covers", "Teaching?"]):
-    tf = box(s, cx + Inches(0.22), y + Inches(0.12), colw[i] - Inches(0.34), Inches(0.3))
-    para(tf, h2, T_BODY, bold=True, color=WHITE, first=True, after=0)
-    cx += colw[i]
-ry = y + Inches(0.46)
-for r, (a, b) in enumerate(rows):
-    rect(s, L, ry, sum(colw, Emu(0)), Inches(0.62), WHITE if r % 2 else WASH)
-    cx = L
-    for i, txt in enumerate((a, b, "No")):
-        tf = box(s, cx + Inches(0.22), ry + Inches(0.16), colw[i] - Inches(0.34), Inches(0.4))
-        para(tf, txt, T_BODY, bold=(i != 1),
-             color=INK if i == 0 else (RED if i == 2 else GREY), first=True, after=0)
-        cx += colw[i]
-    ry += Inches(0.62)
-tf = box(s, L, ry + Inches(0.45), CONTENT, Inches(1.1))
-para(tf, "Compliance and payroll, done well. Nothing that prepares somebody to teach.",
-     T_LEAD, bold=True, first=True, after=8, line=1.25)
-para(tf, "The gap sits at School level: how a computing lab actually runs is not "
-         "something a central program can cover.", T_BODY, color=GREY, after=0, line=1.3)
-foot(s, "Griffith public sources, September 2026  ·  School Manager to confirm nothing "
-        "internal already exists before this proceeds")
-notes(s, "Checked against public Griffith sources only — I cannot see the staff intranet. "
-         "The written proposal says we should confirm with the School Manager first. If "
-         "something internal exists, we adopt it rather than duplicate it.")
+PW = Inches(6.02)
+LX, RX2 = L, Inches(6.93)
+LC, RC = LX + PW / 2, RX2 + PW / 2
+NW2 = Inches(3.0)
 
-# ============================================================ 4. The cycle
-s = slide()
-y = head(s, "One Cycle, Every Trimester,\nwith a Named Owner",
-         "Steps 1, 2, 3 and 5 already happen — just not consistently, and nowhere on record.")
-steps = [("1", "Invite", "Convenors invite students\nwho did well", "Convenor", BLUE),
-         ("2", "Apply", "One standing application:\nexperience, ranked courses", "Candidate", BLUE),
-         ("3", "Select", "Search by course.\nContact directly", "Convenor", BLUE),
-         ("4", "Prepare", "Week 0 workshop\nThree hours", "Coordinator", RED),
-         ("5", "Teach", "Shared tutorial model.\nWeek 3 check-in", "Convenor", BLUE)]
-cw, gap = Inches(2.40), Inches(0.15)
-x0 = L
-for i, (n, title, bodytxt, owner, accent) in enumerate(steps):
-    x = x0 + i * (cw + gap)
-    hi = accent is RED
-    rect(s, x, y, cw, Inches(2.85), WASH)
-    rect(s, x, y, cw, Inches(0.07), accent)
-    tf = box(s, x + Inches(0.24), y + Inches(0.28), cw - Inches(0.48), Inches(0.34))
-    para(tf, f"STEP {n}", T_NOTE, bold=True, color=accent, first=True, after=6)
-    tf = box(s, x + Inches(0.24), y + Inches(0.68), cw - Inches(0.48), Inches(0.4))
-    para(tf, title, T_CARD + 2, bold=True, color=RED if hi else INK, first=True, after=8)
-    tf = box(s, x + Inches(0.24), y + Inches(1.20), cw - Inches(0.48), Inches(1.0))
-    lines = bodytxt.split("\n")
-    for j, ln in enumerate(lines):
-        para(tf, ln, T_BODY, color=GREY, first=(j == 0), after=2, line=1.25)
-    tf = box(s, x + Inches(0.24), y + Inches(2.35), cw - Inches(0.48), Inches(0.3))
-    para(tf, owner.upper(), T_NOTE, bold=True, color=LIGHT, first=True, after=0)
-tf = box(s, L, y + Inches(3.20), CONTENT, Inches(0.9))
-para(tf, "▪  Step 4 is the new part — and the invitation in Step 1 becomes proactive "
-         "and merit-based, rather than students finding out by knowing somebody.",
-     T_LEAD, first=True, after=0, line=1.3)
-notes(s, "Two things change. Strong students get asked. And training becomes a School "
-         "standard rather than a convenor's discretion.")
+def node(x_centre, top, w, h, label, sub=None, fill=WASH, edge=RULE,
+         label_colour=INK, sub_colour=GREY, label_size=T_CARD):
+    rect(s, x_centre - w / 2, top, w, h, fill, edge)
+    tf = box(s, x_centre - w / 2 + Inches(0.12), top + (Inches(0.14) if sub else Inches(0.16)),
+             w - Inches(0.24), h - Inches(0.2))
+    para(tf, label, label_size, bold=True, color=label_colour, first=True,
+         align=PP_ALIGN.CENTER, after=3 if sub else 0)
+    if sub:
+        para(tf, sub, 11, color=sub_colour, align=PP_ALIGN.CENTER, after=0, line=1.2)
 
-# ============================================================ 5. The system
+def arrow(x_centre, top, colour=LIGHT, h=Inches(0.3)):
+    a = s.shapes.add_shape(MSO_SHAPE.DOWN_ARROW, x_centre - Inches(0.09), top,
+                           Inches(0.18), h)
+    a.fill.solid(); a.fill.fore_color.rgb = colour
+    a.line.fill.background(); a.shadow.inherit = False
+
+# --- panel headings ---
+for cx_, txt, col in [(LC, "TODAY", LIGHT), (RC, "WITH A POOL", RED)]:
+    tf = box(s, cx_ - PW / 2, y - Inches(0.06), PW, Inches(0.3))
+    para(tf, txt, T_NOTE, bold=True, color=col, first=True, align=PP_ALIGN.CENTER, after=0)
+
+top = y + Inches(0.34)
+
+# --- left: how it works now ---
+node(LC, top, NW2, Inches(0.62), "Course convenor")
+arrow(LC, top + Inches(0.72))
+small_w, small_gap = Inches(1.85), Inches(0.12)
+sx = LX + (PW - (3 * small_w + 2 * small_gap)) / 2
+for i, t in enumerate(["Ask a colleague", "Remember someone", "Hope somebody asks"]):
+    rect(s, sx + i * (small_w + small_gap), top + Inches(1.12), small_w, Inches(0.62), WHITE, RULE)
+    tf = box(s, sx + i * (small_w + small_gap) + Inches(0.1), top + Inches(1.29),
+             small_w - Inches(0.2), Inches(0.4))
+    para(tf, t, 11, color=GREY, first=True, align=PP_ALIGN.CENTER, after=0)
+arrow(LC, top + Inches(1.84))
+node(LC, top + Inches(2.24), Inches(1.5), Inches(0.62), "?", fill=WHITE, edge=RULE,
+     label_colour=LIGHT, label_size=24)
+
+# --- right: how it works with a pool ---
+node(RC, top, NW2, Inches(0.62), "Course convenor")
+arrow(RC, top + Inches(0.72), RED)
+rect(s, RX2, top + Inches(1.12), PW, Inches(0.98), INK)
+tf = box(s, RX2 + Inches(0.2), top + Inches(1.24), PW - Inches(0.4), Inches(0.8))
+para(tf, "THE POOL", T_NOTE, bold=True, color=WHITE, first=True, align=PP_ALIGN.CENTER, after=4)
+para(tf, "Everyone willing and able — and what each of them has taught",
+     11, color=RGBColor(0xCC, 0xCC, 0xCC), align=PP_ALIGN.CENTER, after=0, line=1.2)
+arrow(RC, top + Inches(2.22), RED)
+node(RC, top + Inches(2.62), NW2, Inches(0.62), "The right tutor",
+     fill=WHITE, edge=RED, label_colour=RED)
+
+# --- what each approach costs or gives ---
+cap_y = top + Inches(3.52)
+tf = box(s, LX, cap_y, PW, Inches(0.8))
+para(tf, "Whoever comes to mind. Strong students who never hear about it never apply, "
+         "and nothing carries from one trimester to the next.",
+     T_BODY, color=GREY, first=True, align=PP_ALIGN.CENTER, after=0, line=1.3)
+tf = box(s, RX2, cap_y, PW, Inches(0.8))
+para(tf, "Search by course. See who has already taught it. Contact them directly — and "
+         "the record carries forward.",
+     T_BODY, color=INK, first=True, align=PP_ALIGN.CENTER, after=0, line=1.3)
+notes(s, "This is the whole argument. A convenor staffing a course today relies on who "
+         "they happen to know, which is both a narrower pool and a less fair one — a "
+         "strong student with no connection to the teaching team never hears about it. "
+         "A pool makes the same decision on better information, and keeps the record.")
+
+# ============================================================ 3. The system
 s = slide()
-y = head(s, "Half of It Already Exists",
-         "The Casual Academic Management System — built, deployed, and in use today.")
+y = head(s, "A Tutor Pool for the School",
+         "Built and deployed. One place where senior students put themselves forward, "
+         "and convenors find out who can teach their course.")
 picture(s, "00-entrance-candidate.png", Inches(0.9), y, Inches(5.4))
 picture(s, "01-entrance-staff.png", Inches(7.0), y, Inches(5.4))
 tf = box(s, Inches(0.9), y + Inches(3.55), Inches(5.4), Inches(0.4))
@@ -258,12 +246,12 @@ tf = box(s, Inches(7.0), y + Inches(3.55), Inches(5.4), Inches(0.4))
 para(tf, "Convenors have theirs", T_BODY, bold=True, color=GREY,
      first=True, align=PP_ALIGN.CENTER, after=0)
 tf = box(s, L, y + Inches(4.15), CONTENT, Inches(0.7))
-para(tf, "▪  One place where senior students put themselves forward, and convenors "
-         "find out who can teach their course.", T_LEAD, first=True, after=0, line=1.3)
-notes(s, "Two links. One goes to students, one to staff. Each audience sees only what "
+para(tf, "▪  The School has never had a list of who is willing and able to tutor. "
+         "This is that list.", T_LEAD, first=True, after=0, line=1.3)
+notes(s, "Two links: one goes to students, one to staff, so each audience sees only what "
          "applies to them. Built at no cost to the School.")
 
-# ================================================= 6-9. The three views
+# ================================================= 4-7. The four views
 views = [
     ("The Candidate's View", "One page, one form — everything a student needs to do.",
      "10-candidate.png",
@@ -272,7 +260,7 @@ views = [
       "Starts blank each visit, so nothing stale is resubmitted by accident"],
      "Students have exactly one job here, so they get exactly one page and no navigation "
      "to learn."),
-    ("The Convenor's View", "Every candidate in the School, searchable by course.",
+    ("The Convenor's View", "Every candidate in the pool, searchable by course.",
      "11-convenor.png",
      ["Everyone registered — not only this trimester's applicants",
       "Two columns: what they have taught, and what they have applied for",
@@ -309,7 +297,7 @@ for title, lead, img, pts, note in views:
         para(tf, b, T_BODY, color=GREY, first=True, after=0, line=1.35)
     notes(s, note)
 
-# ============================================================ 10. Workshop
+# ============================================================ 8. Workshop
 s = slide()
 y = head(s, "The Missing Half: A Week 0 Workshop",
          "Three hours, before teaching starts, for everyone tutoring for the first time.")
@@ -337,59 +325,10 @@ notes(s, "Not compliance training: Griffith does that already and repeating it w
          "waste the only three hours the School gets. Not course-specific either — "
          "convenors brief their own tutors. This is what is common to all of them.")
 
-# ============================================================ 11. Evaluation
-s = slide()
-y = head(s, "How We Would Know It Worked",
-         "Measures chosen so that a failed pilot shows up as failed.")
-cards = [("Coverage", "90% of first-time tutors trained before they teach", BLUE),
-         ("Convenor judgement", "Better prepared than previous trimesters? This decides continuation.", RED),
-         ("Participant judgement", "“Prepared to run my first tutorial” — 4.0 out of 5", BLUE),
-         ("Retention", "60% of tutors return the following trimester", GREEN)]
-cw2, gap2 = Inches(6.15), Inches(0.30)
-for i, (t, b, c) in enumerate(cards):
-    x = L + (i % 2) * (cw2 + gap2)
-    ty = y + (i // 2) * Inches(1.45)
-    card(s, x, ty, cw2, Inches(1.25), c, t, b)
-rect(s, L, y + Inches(3.15), Inches(12.60), Inches(1.30), WASH)
-rect(s, L, y + Inches(3.15), Inches(0.07), Inches(1.30), RED)
-tf = box(s, L + Inches(0.30), y + Inches(3.35), Inches(12.0), Inches(1.0))
-para(tf, "What would count as failure", T_CARD, bold=True, color=RED, first=True, after=7)
-para(tf, "Convenors bypass the system  ·  No difference in preparedness  ·  "
-         "First-time tutors do not attend  ·  It cannot run without me",
-     T_BODY, color=GREY, after=0, line=1.3)
-notes(s, "A program that cannot fail its own evaluation is not being evaluated. The last "
-         "condition matters most: if it depends on one person, it is a hobby with a "
-         "budget rather than a School process.")
-
-# ============================================================ 12. The ask
-s = slide()
-y = head(s, "What I Am Asking For", "Four decisions.")
-asks = [("Endorse the cycle", "Adopt the trimester process as School practice"),
-        ("Endorse the expectation", "First-time tutors attend Week 0 before they teach"),
-        ("Confirm the owner", "Casual Academic Coordinator — proposed: Wei Song"),
-        ("Agree a pilot", "Run it once, review against the measures, then decide")]
-ty = y
-for i, (t, b) in enumerate(asks):
-    rect(s, L, ty, Inches(12.60), Inches(0.95), WASH)
-    rect(s, L, ty, Inches(0.07), Inches(0.95), RED)
-    tf = box(s, L + Inches(0.35), ty + Inches(0.24), Inches(0.6), Inches(0.5))
-    para(tf, str(i + 1), 22, bold=True, color=RED, first=True, after=0)
-    tf = box(s, L + Inches(1.05), ty + Inches(0.18), Inches(11.0), Inches(0.65))
-    para(tf, t, T_CARD, bold=True, first=True, after=3)
-    para(tf, b, T_BODY, color=GREY, after=0)
-    ty += Inches(1.08)
-tf = box(s, L, ty + Inches(0.30), CONTENT, Inches(0.8))
-para(tf, "▪  The system is built and the materials are written. What is needed is "
-         "one trimester to try it.", T_LEAD, bold=True, first=True, after=0, line=1.3)
-notes(s, "The pilot framing is deliberate. I am not asking for a permanent commitment to "
-         "something untested — one trimester, measured against criteria agreed in "
-         "advance.")
-
-# ============================================================ 13. Try it
+# ============================================================ 9. Try it
 s = slide()
 y = head(s, "Please Try It Yourself",
          "The system is live. These accounts are for you to use during or after this meeting.")
-
 cw3, gap3 = Inches(6.15), Inches(0.30)
 
 rect(s, L, y, cw3, Inches(2.35), WASH)
@@ -419,21 +358,73 @@ notes(s, "Please do open it. The convenor account shows the page that matters mo
          "Everything — proposal, process, workshop run sheet, code of conduct — is at "
          "github.com/WWEISONG/griffith-ict-casual-academic")
 
-# ============================================================ 14. Close
+# ============================================================ 10. The cycle
 s = slide()
-rect(s, 0, 0, W, H, WHITE)
-s.shapes.add_picture(LOGO, Inches(0.38), Inches(1.75), height=Inches(0.85))
-tf = box(s, Inches(0.38), Inches(2.95), Inches(11.6), Inches(1.8))
-para(tf, "Students Remember Their Tutors", 31, bold=True, first=True, after=10, line=1.12)
-para(tf, "They are the staff our students see most, and the only ones we have never "
-         "prepared.", 21, color=GREY, after=0, line=1.25)
-rect(s, Inches(0.38), Inches(4.85), Inches(1.5), Pt(2.5), RED)
-tf = box(s, Inches(0.38), Inches(5.22), Inches(11.5), Inches(1.0))
-para(tf, "Wei Song  ·  w.song@griffith.edu.au", 17, bold=True, first=True, after=5)
-para(tf, "github.com/WWEISONG/griffith-ict-casual-academic", 14, color=GREY, after=0)
-notes(s, "Everything is written up in the repository — the gap analysis with sources, "
-         "the full process, the workshop run sheet, the code of conduct and the "
-         "evaluation plan.")
+y = head(s, "How the Pool Fills, and Keeps Filling",
+         "The system is a tutor pool. This is the cycle that stocks it, every trimester.")
+
+CX, CY = Inches(6.55), Inches(4.62)
+RX, RY = Inches(3.62), Inches(1.72)
+NW, NH = Inches(2.52), Inches(0.98)
+
+# The cycle path, drawn faintly behind everything.
+ring = s.shapes.add_shape(MSO_SHAPE.OVAL, CX - RX, CY - RY, RX * 2, RY * 2)
+ring.fill.background()
+ring.line.color.rgb = RULE
+ring.line.width = Pt(1.25)
+ring.shadow.inherit = False
+
+steps = [
+    ("1", "Invite", "Convenors invite students\nwho did well in the course", RED),
+    ("2", "Apply", "One standing application:\nexperience, ranked courses", BLUE),
+    ("3", "Select", "Search the pool by course.\nContact directly", BLUE),
+    ("4", "Prepare", "Week 0 workshop\nThree hours", RED),
+    ("5", "Teach", "Shared tutorial model.\nWeek 3 check-in", BLUE),
+]
+angles = [-90, -18, 54, 126, 198]
+
+# Direction markers, sitting between the steps.
+for a in [-54, 18, 90, 162, 234]:
+    r = math.radians(a)
+    tx = CX + Emu(int(RX * math.cos(r))) - Inches(0.11)
+    ty = CY + Emu(int(RY * math.sin(r))) - Inches(0.11)
+    tri = s.shapes.add_shape(MSO_SHAPE.ISOSCELES_TRIANGLE, tx, ty, Inches(0.22), Inches(0.22))
+    tri.fill.solid(); tri.fill.fore_color.rgb = LIGHT
+    tri.line.fill.background(); tri.shadow.inherit = False
+    tri.rotation = a + 90
+
+for (n, title, bodytxt, accent), a in zip(steps, angles):
+    r = math.radians(a)
+    x = CX + Emu(int(RX * math.cos(r))) - NW / 2
+    ny = CY + Emu(int(RY * math.sin(r))) - NH / 2
+    rect(s, x, ny, NW, NH, WHITE, RULE)
+    rect(s, x, ny, Inches(0.07), NH, accent)
+    tf = box(s, x + Inches(0.24), ny + Inches(0.12), NW - Inches(0.4), Inches(0.28))
+    para(tf, f"{n}   {title.upper()}", T_NOTE, bold=True, color=accent, first=True, after=4)
+    tf = box(s, x + Inches(0.24), ny + Inches(0.42), NW - Inches(0.4), Inches(0.5))
+    lines = bodytxt.split("\n")
+    for j, ln in enumerate(lines):
+        para(tf, ln, 11, color=GREY, first=(j == 0), after=1, line=1.15)
+
+# The pool itself, at the centre of the cycle.
+pool = s.shapes.add_shape(MSO_SHAPE.OVAL, CX - Inches(1.72), CY - Inches(0.86),
+                          Inches(3.44), Inches(1.72))
+pool.fill.solid(); pool.fill.fore_color.rgb = INK
+pool.line.fill.background(); pool.shadow.inherit = False
+tf = box(s, CX - Inches(1.55), CY - Inches(0.52), Inches(3.1), Inches(1.1))
+para(tf, "THE TUTOR POOL", T_NOTE, bold=True, color=WHITE, first=True,
+     align=PP_ALIGN.CENTER, after=5)
+para(tf, "Who they are, what they\nhave taught, what they\nwant to teach", 11,
+     color=RGBColor(0xCC, 0xCC, 0xCC), align=PP_ALIGN.CENTER, after=0, line=1.25)
+
+tf = box(s, L, Inches(6.80), CONTENT, Inches(0.5))
+para(tf, "▪  Step 1 is how the pool gets stocked. Step 4 is the part the School does "
+         "not have yet.", T_LEAD, first=True, after=0, line=1.25)
+notes(s, "The system is a pool, and a pool only works if something keeps filling it. That "
+         "is Step 1: at results release, convenors invite the students who did well. "
+         "Today students find out about tutoring by knowing somebody, which is both a "
+         "narrower and a less fair pool than it should be. Step 4 is the training, and "
+         "the only part that does not exist in some form already.")
 
 out = "docs/tutor-program/HoS-briefing.pptx"
 prs.save(out)
