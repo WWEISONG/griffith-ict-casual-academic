@@ -1,8 +1,23 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth/AuthContext'
+import { backendIsLive } from '@/lib/provider'
+import { LOCAL_PASSWORD } from '@/lib/provider/mock/seed'
 import { Button, Field, Input } from '@/components/ui'
 import { AuthLayout } from './AuthLayout'
+
+/**
+ * Accounts available when the app runs on sample data. Shown on the sign-in
+ * screen in that mode only — without this, the sample build is unusable,
+ * because the password is a build-time fallback nobody could guess.
+ *
+ * This panel disappears the moment a real backend is configured.
+ */
+const SAMPLE_ACCOUNTS = [
+  { email: 'w.song@griffith.edu.au', role: 'Administrator' },
+  { email: 'a.nguyen@griffith.edu.au', role: 'Course convenor' },
+  { email: 'liam.chen@griffithuni.edu.au', role: 'Student applicant' },
+]
 
 export function Login() {
   const { signIn } = useAuth()
@@ -56,6 +71,36 @@ export function Login() {
 
         <Button type="submit" className="w-full" size="lg" loading={busy}>Sign in</Button>
       </form>
+
+      {!backendIsLive && (
+        <div className="mt-6 rounded-lg border border-ink-200 bg-ink-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-700">
+            Running on sample data
+          </p>
+          <p className="mt-1.5 text-xs leading-relaxed text-ink-600">
+            No database is connected to this build, so it uses illustrative
+            records held in your browser. Choose an account to see that role's view.
+          </p>
+          <ul className="mt-3 space-y-1">
+            {SAMPLE_ACCOUNTS.map((a) => (
+              <li key={a.email}>
+                <button
+                  type="button"
+                  onClick={() => { setEmail(a.email); setPassword(LOCAL_PASSWORD) }}
+                  className="flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white"
+                >
+                  <span className="truncate font-mono text-xs text-ink-800">{a.email}</span>
+                  <span className="shrink-0 text-[11px] font-medium text-griffith-700">{a.role}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2.5 border-t border-ink-200 pt-2.5 text-xs text-ink-500">
+            Password <code className="rounded bg-white px-1.5 py-0.5 font-mono text-ink-800">{LOCAL_PASSWORD}</code>
+            {' '}— click any account above to fill both fields.
+          </p>
+        </div>
+      )}
     </AuthLayout>
   )
 }
