@@ -16,6 +16,7 @@ import type {
   ApplicantFilter, ApplicationDraft, AuthSession, DataProvider, RegisterInput,
 } from '../types'
 import { isGriffithEmail, toCsv } from '@/lib/utils'
+import { createIsolatedClient } from './client'
 
 // --- row <-> domain mapping -------------------------------------------------
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -219,18 +220,60 @@ export class SupabaseProvider implements DataProvider {
   }
 
   /**
-   * Creating a staff account requires privileges the browser does not hold, so
-   * this calls an Edge Function that runs with the service role and verifies
-   * the caller is an administrator. See supabase/functions/create-staff.
+   * Create a staff account.
+   *
+   * Two steps, neither needing a privileged key. The account is created through
+   * ordinary signup — on an isolated client, so the administrator's own session
+   * is not replaced — which the database trigger records as a student. The
+   * administrator then promotes it, which row level security permits them to do.
    */
   async createStaffAccount(input: {
     email: string; fullName: string; role: 'lecturer' | 'admin'
     position?: string; password: string; courseCodes?: string[]
   }): Promise<Profile> {
-    const { data, error } = await this.db.functions.invoke('create-staff', { body: input })
-    if (error) throw new Error(error.message || 'Could not create the staff account.')
-    if ((data as any)?.error) throw new Error((data as any).error)
-    return toProfile((data as any).profile)
+    const email = input.email.trim().toLowerCase()
+    if (!email.endsWith('@griffith.edu.au')) {
+      throw new Error('Staff accounts require a @griffith.edu.au address.')
+    }
+
+    const isolated = createIsolatedClient()
+    if (!isolated) throw new Error('No backend is configured.')
+
+    const { data, error } = await isolated.auth.signUp({
+      email, password: input.password,
+      options: { data: { full_name: input.fullName.trim() } },
+    })
+    if (error) {
+      if (/already registered/i.test(error.message)) {
+        throw new Error('An account already exists for that email address.')
+      }
+      throw new Error(error.message)
+    }
+    const userId = data.user?.id
+    if (!userId) throw new Error('The account was created but could not be identified.')
+
+    // Promote, as the administrator.
+    const { data: promoted, error: roleErr } = await this.db.from('profiles')
+      .update({
+        role: input.role,
+        full_name: input.fullName.trim(),
+        position: input.position?.trim() || null,
+      })
+      .eq('id', userId)
+      .select()
+      .single()
+    if (roleErr) {
+      explain(roleErr, 'The account was created but could not be given staff access.')
+    }
+
+    if (input.courseCodes?.length) {
+      await this.db.from('course_lecturers').upsert(
+        input.courseCodes.map((c) => ({ course_code: c, lecturer_id: userId, is_convenor: true })),
+        { onConflict: 'course_code,lecturer_id' },
+      )
+    }
+
+    return toProfile(promoted)
   }
 
   async setProfileActive(id: string, isActive: boolean) {
