@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { getProvider } from '@/lib/provider'
 import { useAsync } from '@/hooks/useAsync'
 import { useToast } from '@/hooks/useToast'
@@ -7,7 +7,6 @@ import {
   Avatar, Badge, Button, Card, EmptyState, ErrorState, Field, Input,
   LoadingState, Modal, Select,
 } from '@/components/ui'
-import { ICT_COURSES } from '@/data/courses'
 import { formatDate, isGriffithEmail } from '@/lib/utils'
 import type { Role } from '@/types'
 
@@ -23,28 +22,13 @@ export function People() {
   const [role, setRole] = useState<Role | ''>('')
   const [q, setQ] = useState('')
   const [createOpen, setCreateOpen] = useState(false)
-  const [coursesFor, setCoursesFor] = useState<string | null>(null)
 
-  const state = useAsync(async () => {
-    const [profiles, courseLecturers] = await Promise.all([
-      provider.listProfiles(),
-      provider.listCourseLecturers(),
-    ])
-    return { profiles, courseLecturers }
-  }, [])
-
-  const countByLecturer = useMemo(() => {
-    const m = new Map<string, number>()
-    for (const cl of state.data?.courseLecturers ?? []) {
-      m.set(cl.lecturerId, (m.get(cl.lecturerId) ?? 0) + 1)
-    }
-    return m
-  }, [state.data])
+  const state = useAsync(() => provider.listProfiles(), [])
 
   if (state.loading) return <LoadingState />
   if (state.error) return <ErrorState message={state.error} onRetry={state.reload} />
 
-  let rows = state.data!.profiles
+  let rows = state.data!
   if (role) rows = rows.filter((p) => p.role === role)
   if (q) {
     const needle = q.toLowerCase()
@@ -90,7 +74,7 @@ export function People() {
                 <tr className="text-xs font-medium text-ink-500">
                   <th scope="col" className="px-4 py-2.5">Person</th>
                   <th scope="col" className="px-4 py-2.5">Role</th>
-                  <th scope="col" className="px-4 py-2.5">Courses</th>
+                  <th scope="col" className="px-4 py-2.5">Program / position</th>
                   <th scope="col" className="px-4 py-2.5">Joined</th>
                   <th scope="col" className="px-4 py-2.5">Status</th>
                   <th scope="col" className="px-4 py-2.5"></th>
@@ -114,25 +98,16 @@ export function People() {
                       </Badge>
                     </td>
                     <td className="px-4 py-3 text-ink-700">
-                      {p.role === 'lecturer' || p.role === 'admin'
-                        ? `${countByLecturer.get(p.id) ?? 0} assigned`
-                        : (p.program ?? '—')}
+                      {p.role === 'student' ? (p.program ?? '—') : (p.position ?? '—')}
                     </td>
                     <td className="px-4 py-3 text-xs text-ink-500">{formatDate(p.createdAt)}</td>
                     <td className="px-4 py-3">
                       {p.isActive ? <Badge tone="success">Active</Badge> : <Badge tone="danger">Disabled</Badge>}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <div className="flex justify-end gap-1.5">
-                        {(p.role === 'lecturer' || p.role === 'admin') && (
-                          <Button size="sm" variant="secondary" onClick={() => setCoursesFor(p.id)}>
-                            Courses
-                          </Button>
-                        )}
-                        <Button size="sm" variant="ghost" onClick={() => toggleActive(p.id, !p.isActive)}>
-                          {p.isActive ? 'Disable' : 'Enable'}
-                        </Button>
-                      </div>
+                      <Button size="sm" variant="ghost" onClick={() => toggleActive(p.id, !p.isActive)}>
+                        {p.isActive ? 'Disable' : 'Enable'}
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -144,16 +119,6 @@ export function People() {
 
       <CreateStaffModal open={createOpen} onClose={() => setCreateOpen(false)}
                         onSaved={() => { setCreateOpen(false); state.reload() }} />
-
-      {coursesFor && (
-        <AssignCoursesModal
-          lecturerId={coursesFor}
-          name={state.data!.profiles.find((p) => p.id === coursesFor)?.fullName ?? ''}
-          current={state.data!.courseLecturers.filter((c) => c.lecturerId === coursesFor).map((c) => c.courseCode)}
-          onClose={() => setCoursesFor(null)}
-          onSaved={() => { setCoursesFor(null); state.reload() }}
-        />
-      )}
     </>
   )
 }
@@ -212,59 +177,6 @@ function CreateStaffModal({ open, onClose, onSaved }: {
                hint="At least 10 characters. Ask them to change it after first sign-in.">
           <Input type="text" value={password} onChange={(e) => setPassword(e.target.value)} />
         </Field>
-      </div>
-    </Modal>
-  )
-}
-
-function AssignCoursesModal({ lecturerId, name, current, onClose, onSaved }: {
-  lecturerId: string; name: string; current: string[]; onClose: () => void; onSaved: () => void
-}) {
-  const provider = getProvider()
-  const { push } = useToast()
-  const [selected, setSelected] = useState<Set<string>>(new Set(current))
-  const [q, setQ] = useState('')
-  const [busy, setBusy] = useState(false)
-
-  const shown = q
-    ? ICT_COURSES.filter((c) => `${c.code} ${c.title}`.toLowerCase().includes(q.toLowerCase()))
-    : ICT_COURSES
-
-  async function save() {
-    setBusy(true)
-    try {
-      await provider.setCourseLecturers(lecturerId, [...selected])
-      push('success', `Courses updated for ${name}.`)
-      onSaved()
-    } catch (e) { push('error', (e as Error).message) } finally { setBusy(false) }
-  }
-
-  return (
-    <Modal open wide onClose={onClose} title={`Courses for ${name}`}
-           description="They will see applicants who nominated any of these courses."
-           footer={<>
-             <span className="mr-auto text-sm text-ink-500">{selected.size} selected</span>
-             <Button variant="secondary" onClick={onClose}>Cancel</Button>
-             <Button onClick={save} loading={busy}>Save</Button>
-           </>}>
-      <Input placeholder="Filter courses…" value={q} onChange={(e) => setQ(e.target.value)}
-             className="mb-3" aria-label="Filter courses" />
-      <div className="max-h-96 divide-y divide-ink-200 overflow-y-auto rounded-lg border border-ink-200">
-        {shown.map((c) => (
-          <label key={c.code} className="flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-ink-50">
-            <input type="checkbox" checked={selected.has(c.code)}
-                   onChange={(e) => setSelected((s) => {
-                     const next = new Set(s)
-                     if (e.target.checked) next.add(c.code); else next.delete(c.code)
-                     return next
-                   })}
-                   className="h-4 w-4 rounded border-ink-300 text-griffith-700 focus:ring-griffith-600" />
-            <span className="min-w-0">
-              <span className="text-sm font-medium text-ink-900">{c.code}</span>
-              <span className="ml-2 text-sm text-ink-600">{c.title}</span>
-            </span>
-          </label>
-        ))}
       </div>
     </Modal>
   )

@@ -27,13 +27,6 @@ function Icon({ path }: { path: ReactNode }) {
   )
 }
 
-const STUDENT_NAV: NavItem[] = [
-  { to: '/app', label: 'Overview', icon: <Icon path={I.home} />, end: true },
-  { to: '/app/application', label: 'My application', icon: <Icon path={I.doc} /> },
-  { to: '/app/experience', label: 'Teaching history', icon: <Icon path={I.clip} /> },
-  { to: '/app/profile', label: 'My details', icon: <Icon path={I.cog} /> },
-]
-
 // Deliberately short. Convenors open this system a handful of times a
 // trimester; every extra nav item is something they have to think about.
 const LECTURER_NAV: NavItem[] = [
@@ -47,7 +40,7 @@ const ADMIN_NAV: NavItem[] = [
   { to: '/app/applicants', label: 'All applicants', icon: <Icon path={I.users} /> },
   { to: '/app/allocations', label: 'Allocations', icon: <Icon path={I.clip} /> },
   { to: '/app/demand', label: 'Course demand', icon: <Icon path={I.chart} /> },
-  { to: '/app/courses', label: 'Courses & convenors', icon: <Icon path={I.book} /> },
+  { to: '/app/courses', label: 'Course catalogue', icon: <Icon path={I.book} /> },
   { to: '/app/people', label: 'Accounts', icon: <Icon path={I.users} /> },
 ]
 
@@ -56,7 +49,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
 
-  const nav = role === 'admin' ? ADMIN_NAV : role === 'lecturer' ? LECTURER_NAV : STUDENT_NAV
+  // Students never reach this shell — they get a single page with no sidebar
+  // (see StudentChrome in App.tsx) — so only the staff menus exist here.
+  const nav = role === 'admin' ? ADMIN_NAV : LECTURER_NAV
 
   async function handleSignOut() {
     await signOut()
