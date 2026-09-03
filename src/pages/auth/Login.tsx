@@ -26,6 +26,9 @@ export function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  // The sample-account panel is a means to an end: once an account has been
+  // chosen it has served its purpose and only adds noise.
+  const [showSamples, setShowSamples] = useState(true)
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -72,7 +75,17 @@ export function Login() {
         <Button type="submit" className="w-full" size="lg" loading={busy}>Sign in</Button>
       </form>
 
-      {!backendIsLive && (
+      {!backendIsLive && !showSamples && (
+        <button
+          type="button"
+          onClick={() => setShowSamples(true)}
+          className="mt-4 text-xs font-medium text-ink-500 hover:text-ink-800 hover:underline"
+        >
+          Show sample accounts
+        </button>
+      )}
+
+      {!backendIsLive && showSamples && (
         <div className="mt-6 rounded-lg border border-ink-200 bg-ink-50 p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-ink-700">
             Running on sample data
@@ -86,7 +99,12 @@ export function Login() {
               <li key={a.email}>
                 <button
                   type="button"
-                  onClick={() => { setEmail(a.email); setPassword(LOCAL_PASSWORD) }}
+                  onClick={() => {
+                    setEmail(a.email)
+                    setPassword(LOCAL_PASSWORD)
+                    setShowSamples(false)
+                    setError(null)
+                  }}
                   className="flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-white"
                 >
                   <span className="truncate font-mono text-xs text-ink-800">{a.email}</span>
