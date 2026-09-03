@@ -9,13 +9,11 @@ import { Landing } from '@/pages/Landing'
 import { Login } from '@/pages/auth/Login'
 import { Register } from '@/pages/auth/Register'
 import { StudentPortal } from '@/pages/student/StudentPortal'
-import { StaffDashboard } from '@/pages/staff/StaffDashboard'
-import { Applicants } from '@/pages/staff/Applicants'
-import { ApplicantDetail } from '@/pages/staff/ApplicantDetail'
+import { FindTutor } from '@/pages/staff/FindTutor'
+import { ByCourse } from '@/pages/staff/ByCourse'
+import { PersonDetail } from '@/pages/staff/PersonDetail'
 import { Allocations } from '@/pages/staff/Allocations'
-import { CourseDemand } from '@/pages/staff/CourseDemand'
 import { People } from '@/pages/admin/People'
-import { Courses } from '@/pages/admin/Courses'
 
 /** Blocks a route until the session is known, then enforces the role. */
 function Protected({ allow, children }: { allow?: Array<'student' | 'lecturer' | 'admin'>; children: React.ReactNode }) {
@@ -38,7 +36,7 @@ function Protected({ allow, children }: { allow?: Array<'student' | 'lecturer' |
 function AppHome() {
   const { role } = useAuth()
   if (role === 'student') return <StudentPortal />
-  return <StaffDashboard />
+  return <FindTutor />
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
@@ -90,20 +88,16 @@ function Router() {
       <Route path="/app" element={<Protected><Shell><AppHome /></Shell></Protected>} />
 
       {/* Staff */}
-      <Route path="/app/applicants" element={
-        <Protected allow={['lecturer', 'admin']}><Shell><Applicants /></Shell></Protected>} />
-      <Route path="/app/applicants/:id" element={
-        <Protected allow={['lecturer', 'admin']}><Shell><ApplicantDetail /></Shell></Protected>} />
+      <Route path="/app/courses" element={
+        <Protected allow={['lecturer', 'admin']}><Shell><ByCourse /></Shell></Protected>} />
+      <Route path="/app/people/:id" element={
+        <Protected allow={['lecturer', 'admin']}><Shell><PersonDetail /></Shell></Protected>} />
       <Route path="/app/allocations" element={
         <Protected allow={['lecturer', 'admin']}><Shell><Allocations /></Shell></Protected>} />
-      <Route path="/app/demand" element={
-        <Protected allow={['lecturer', 'admin']}><Shell><CourseDemand /></Shell></Protected>} />
 
       {/* Administration */}
       <Route path="/app/people" element={
         <Protected allow={['admin']}><Shell><People /></Shell></Protected>} />
-      <Route path="/app/courses" element={
-        <Protected allow={['admin']}><Shell><Courses /></Shell></Protected>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

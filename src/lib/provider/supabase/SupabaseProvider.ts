@@ -10,7 +10,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type {
   Application, ApplicationDetail, ApplicationNote, ApplicationStatus, ApplicantRow,
   Assignment, ContactLogEntry, Course, CourseLecturer, DashboardStats, Profile,
-  RecruitmentRound, Role, TutoringExperience, Trimester,
+  RecruitmentRound, Role, StudentRow, TutoringExperience, Trimester,
 } from '@/types'
 import type {
   ApplicantFilter, ApplicationDraft, AuthSession, DataProvider, RegisterInput,
@@ -410,6 +410,61 @@ export class SupabaseProvider implements DataProvider {
   async deleteExperience(id: string) {
     const { error } = await this.db.from('tutoring_experience').delete().eq('id', id)
     if (error) explain(error, 'Could not remove that entry.')
+  }
+
+  // --- Student directory ------------------------------------------------------
+  async listStudents(search?: string): Promise<StudentRow[]> {
+    let q = this.db.from('student_directory').select('*')
+    if (search?.trim()) {
+      const s = `%${search.trim()}%`
+      q = q.or(`full_name.ilike.${s},email.ilike.${s},student_number.ilike.${s},program.ilike.${s}`)
+    }
+    const { data, error } = await q
+      .order('times_tutored', { ascending: false })
+      .order('full_name')
+    if (error) explain(error, 'Could not load the student directory.')
+
+    return (data ?? []).map((r: any) => ({
+      id: r.id,
+      fullName: r.full_name,
+      email: r.email,
+      phone: r.phone,
+      studentNumber: r.student_number,
+      program: r.program,
+      degreeLevel: r.degree_level,
+      campus: r.campus,
+      registeredAt: r.registered_at,
+      timesTutored: Number(r.times_tutored ?? 0),
+      coursesTutored: Number(r.courses_tutored ?? 0),
+      lastTaughtYear: r.last_taught_year,
+      tutoredCourses: r.tutored_courses ?? [],
+      appliedCourses: r.applied_courses ?? [],
+      applicationId: r.application_id,
+      appliedAt: r.applied_at,
+      applicationUpdatedAt: r.application_updated_at,
+      currentLoadHours: Number(r.current_load_hours ?? 0),
+    }))
+  }
+
+  async studentExperience(profileId: string): Promise<TutoringExperience[]> {
+    const { data, error } = await this.db.from('tutoring_experience')
+      .select('*').eq('profile_id', profileId)
+      .order('year', { ascending: false }).order('trimester', { ascending: false })
+    if (error) explain(error, 'Could not load that teaching history.')
+    return (data ?? []).map(toExperience)
+  }
+
+  async exportStudentsCsv(search?: string): Promise<string> {
+    const rows = await this.listStudents(search)
+    return toCsv(
+      ['Name', 'Student number', 'Email', 'Phone', 'Program', 'Level', 'Campus',
+       'Times tutored', 'Courses tutored', 'Last taught', 'Applied', 'Current load (hrs)'],
+      rows.map((r) => [
+        r.fullName, r.studentNumber ?? '', r.email, r.phone ?? '', r.program ?? '',
+        r.degreeLevel ?? '', r.campus ?? '', r.timesTutored, r.coursesTutored,
+        r.lastTaughtYear ?? '', r.appliedAt ? 'Yes' : 'No', r.currentLoadHours,
+      ]),
+    )
   }
 
   // --- Review -----------------------------------------------------------------

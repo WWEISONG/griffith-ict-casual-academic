@@ -29,19 +29,18 @@ function Icon({ path }: { path: ReactNode }) {
 
 // Deliberately short. Convenors open this system a handful of times a
 // trimester; every extra nav item is something they have to think about.
+// Two lists, because convenors arrive with one of two questions: "who could
+// teach this course?" and "who is this person?".
 const LECTURER_NAV: NavItem[] = [
-  { to: '/app', label: 'Applicants', icon: <Icon path={I.users} />, end: true },
-  { to: '/app/allocations', label: 'My tutors', icon: <Icon path={I.clip} /> },
-  { to: '/app/demand', label: 'Course coverage', icon: <Icon path={I.chart} /> },
+  { to: '/app', label: 'Find a tutor', icon: <Icon path={I.users} />, end: true },
+  { to: '/app/courses', label: 'By course', icon: <Icon path={I.book} /> },
 ]
 
 const ADMIN_NAV: NavItem[] = [
-  { to: '/app', label: 'Overview', icon: <Icon path={I.home} />, end: true },
-  { to: '/app/applicants', label: 'All applicants', icon: <Icon path={I.users} /> },
+  { to: '/app', label: 'Find a tutor', icon: <Icon path={I.users} />, end: true },
+  { to: '/app/courses', label: 'By course', icon: <Icon path={I.book} /> },
   { to: '/app/allocations', label: 'Allocations', icon: <Icon path={I.clip} /> },
-  { to: '/app/demand', label: 'Course demand', icon: <Icon path={I.chart} /> },
-  { to: '/app/courses', label: 'Course catalogue', icon: <Icon path={I.book} /> },
-  { to: '/app/people', label: 'Accounts', icon: <Icon path={I.users} /> },
+  { to: '/app/people', label: 'Accounts', icon: <Icon path={I.cog} /> },
 ]
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -122,12 +121,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             ))}
           </nav>
 
-          <div className="mt-auto hidden pt-4 lg:block">
-            <p className="px-3 text-[11px] leading-relaxed text-ink-400">
-              Offers and contracts are issued by Griffith HR. This portal covers
-              advertising, application and selection only.
-            </p>
-          </div>
         </aside>
 
         {menuOpen && (

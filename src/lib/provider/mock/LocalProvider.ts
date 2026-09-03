@@ -13,7 +13,7 @@
 import type {
   Application, ApplicationDetail, ApplicationNote, ApplicationStatus, ApplicantRow,
   Assignment, ContactLogEntry, Course, CourseLecturer, DashboardStats, Profile,
-  RecruitmentRound, Role, TutoringExperience,
+  RecruitmentRound, Role, StudentRow, TutoringExperience,
 } from '@/types'
 import type {
   ApplicantFilter, ApplicationDraft, AuthSession, DataProvider, RegisterInput,
@@ -443,6 +443,69 @@ export class LocalProvider implements DataProvider {
       (e) => !(e.id === id && (e.profileId === me.id || this.isAdmin())),
     )
     this.persist()
+  }
+
+  // --- Student directory ----------------------------------------------------
+  async listStudents(search?: string): Promise<StudentRow[]> {
+    await delay()
+    this.requireStaff()
+    const q = search?.trim().toLowerCase()
+
+    return this.db.profiles
+      .filter((p) => p.role === 'student' && p.isActive)
+      .filter((p) => !q || `${p.fullName} ${p.email} ${p.studentNumber ?? ''} ${p.program ?? ''}`
+        .toLowerCase().includes(q))
+      .map((p) => {
+        const exp = this.db.experience.filter((e) => e.profileId === p.id)
+        const app = this.db.applications.find((a) => a.applicantId === p.id && a.status !== 'draft')
+        const tutoredCourses = [...new Set(exp.map((e) => e.courseCode).filter(Boolean) as string[])].sort()
+        const appliedCourses = [...new Set((app?.preferences ?? []).map((x) => x.courseCode))].sort()
+        return {
+          id: p.id,
+          fullName: p.fullName,
+          email: p.email,
+          phone: p.phone,
+          studentNumber: p.studentNumber,
+          program: p.program,
+          degreeLevel: p.degreeLevel,
+          campus: p.campus,
+          registeredAt: p.createdAt,
+          timesTutored: exp.length,
+          coursesTutored: tutoredCourses.length,
+          lastTaughtYear: exp.length ? Math.max(...exp.map((e) => e.year)) : null,
+          tutoredCourses,
+          appliedCourses,
+          applicationId: app?.id ?? null,
+          appliedAt: app?.submittedAt ?? null,
+          applicationUpdatedAt: app?.updatedAt ?? null,
+          currentLoadHours: this.db.assignments
+            .filter((a) => a.profileId === p.id && a.status === 'confirmed')
+            .reduce((sum, a) => sum + a.hoursPerWeek, 0),
+        }
+      })
+      // Most experienced first — that is what a convenor is scanning for.
+      .sort((a, b) => b.timesTutored - a.timesTutored || a.fullName.localeCompare(b.fullName))
+  }
+
+  async studentExperience(profileId: string): Promise<TutoringExperience[]> {
+    await delay()
+    this.requireStaff()
+    return this.db.experience
+      .filter((e) => e.profileId === profileId)
+      .sort((a, b) => b.year - a.year || b.trimester - a.trimester)
+  }
+
+  async exportStudentsCsv(search?: string): Promise<string> {
+    const rows = await this.listStudents(search)
+    return toCsv(
+      ['Name', 'Student number', 'Email', 'Phone', 'Program', 'Level', 'Campus',
+       'Times tutored', 'Courses tutored', 'Last taught', 'Applied', 'Current load (hrs)'],
+      rows.map((r) => [
+        r.fullName, r.studentNumber ?? '', r.email, r.phone ?? '', r.program ?? '',
+        r.degreeLevel ?? '', r.campus ?? '', r.timesTutored, r.coursesTutored,
+        r.lastTaughtYear ?? '', r.appliedAt ? 'Yes' : 'No', r.currentLoadHours,
+      ]),
+    )
   }
 
   // --- Review (staff) -------------------------------------------------------

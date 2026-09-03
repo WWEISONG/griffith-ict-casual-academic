@@ -250,6 +250,33 @@ export interface ApplicantRow {
   currentLoadHours: number
 }
 
+/** One registered student, as staff see them in the directory. */
+export interface StudentRow {
+  id: string
+  fullName: string
+  email: string
+  phone?: string | null
+  studentNumber?: string | null
+  program?: string | null
+  degreeLevel?: DegreeLevel | null
+  campus?: Campus | null
+  registeredAt: string
+  /** Number of recorded tutoring engagements. */
+  timesTutored: number
+  /** Distinct Griffith courses they have tutored. */
+  coursesTutored: number
+  lastTaughtYear?: number | null
+  /** Courses they have actually taught. */
+  tutoredCourses: string[]
+  /** Courses they have asked to teach. */
+  appliedCourses: string[]
+  /** Set when they have an application on file. */
+  applicationId?: string | null
+  appliedAt?: string | null
+  applicationUpdatedAt?: string | null
+  currentLoadHours: number
+}
+
 export interface DashboardStats {
   totalApplicants: number
   totalApplications: number

@@ -62,6 +62,17 @@ async function main() {
   const courses = await p.listCourses()
   check('full ICT catalogue is loaded', courses.length === 187, `${courses.length} courses`)
 
+  console.log('\nTutor directory — the point of the system')
+  const dirAdmin = await p.listStudents()
+  check('directory lists every registered student, applied or not', dirAdmin.length > 0,
+        `${dirAdmin.length} people`)
+  check('directory carries what each person has taught',
+        dirAdmin.some((s) => s.tutoredCourses.length > 0))
+  check('directory carries what each person asked to teach',
+        dirAdmin.some((s) => s.appliedCourses.length > 0))
+  const search = await p.listStudents('Liam')
+  check('directory is searchable by name', search.length > 0 && search.length < dirAdmin.length)
+
   console.log('\nStaff scope — all staff see all applicants')
   const lec1 = await p.signIn('a.nguyen@griffith.edu.au', LOCAL_PASSWORD)
   check('convenor can sign in', lec1.profile.role === 'lecturer')
@@ -94,6 +105,16 @@ async function main() {
 
   await expectReject('convenor cannot deactivate an account', () =>
     p.setProfileActive('u_s1', false))
+
+  const dirLec = await p.listStudents()
+  check('a convenor sees the same directory as an administrator',
+        dirLec.length === dirAdmin.length, `${dirLec.length} vs ${dirAdmin.length}`)
+
+  await expectReject('a student cannot read the directory', async () => {
+    await p.signIn('liam.chen@griffithuni.edu.au', LOCAL_PASSWORD)
+    return p.listStudents()
+  })
+  await p.signIn('a.nguyen@griffith.edu.au', LOCAL_PASSWORD)
 
   console.log('\nStudent flow')
   const stu = await p.signIn('liam.chen@griffithuni.edu.au', LOCAL_PASSWORD)

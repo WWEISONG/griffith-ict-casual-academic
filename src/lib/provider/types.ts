@@ -22,6 +22,7 @@ import type {
   Profile,
   RecruitmentRound,
   Role,
+  StudentRow,
   TutoringExperience,
 } from '@/types'
 
@@ -111,6 +112,13 @@ export interface DataProvider {
   myExperience(): Promise<TutoringExperience[]>
   addExperience(entry: Omit<TutoringExperience, 'id' | 'profileId' | 'isVerified' | 'createdAt'>): Promise<TutoringExperience>
   deleteExperience(id: string): Promise<void>
+
+  // --- Student directory (staff side) -------------------------------------
+  /** Every registered student, whether or not they have applied. */
+  listStudents(search?: string): Promise<StudentRow[]>
+  /** A student's teaching history, for the directory detail view. */
+  studentExperience(profileId: string): Promise<TutoringExperience[]>
+  exportStudentsCsv(search?: string): Promise<string>
 
   // --- Review (lecturer / admin side) ------------------------------------
   listApplicants(filter: ApplicantFilter): Promise<ApplicantRow[]>
