@@ -130,7 +130,8 @@ export interface CoursePreference {
 export interface Application {
   id: string
   applicantId: string
-  roundId: string
+  /** Unused since applications became always-open; kept for historic records. */
+  roundId?: string | null
   status: ApplicationStatus
   /** "Why I am qualified" — the core free-text statement. */
   statement: string
@@ -223,7 +224,7 @@ export interface ApplicationDetail extends Application {
   currentAssignments: Assignment[]
   notes: ApplicationNote[]
   contactLog: ContactLogEntry[]
-  round: RecruitmentRound
+  round?: RecruitmentRound | null
 }
 
 /** A row in the lecturer's / admin's applicant table. */

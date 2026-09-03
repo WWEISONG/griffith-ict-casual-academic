@@ -15,7 +15,6 @@ import { Allocations } from '@/pages/staff/Allocations'
 import { CourseDemand } from '@/pages/staff/CourseDemand'
 import { People } from '@/pages/admin/People'
 import { Courses } from '@/pages/admin/Courses'
-import { Rounds } from '@/pages/admin/Rounds'
 
 /** Blocks a route until the session is known, then enforces the role. */
 function Protected({ allow, children }: { allow?: Array<'student' | 'lecturer' | 'admin'>; children: React.ReactNode }) {
@@ -104,8 +103,6 @@ function Router() {
         <Protected allow={['admin']}><Shell><People /></Shell></Protected>} />
       <Route path="/app/courses" element={
         <Protected allow={['admin']}><Shell><Courses /></Shell></Protected>} />
-      <Route path="/app/rounds" element={
-        <Protected allow={['admin']}><Shell><Rounds /></Shell></Protected>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

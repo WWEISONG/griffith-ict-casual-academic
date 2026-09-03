@@ -48,7 +48,6 @@ const ADMIN_NAV: NavItem[] = [
   { to: '/app/demand', label: 'Course demand', icon: <Icon path={I.chart} /> },
   { to: '/app/courses', label: 'Courses & convenors', icon: <Icon path={I.book} /> },
   { to: '/app/people', label: 'Accounts', icon: <Icon path={I.users} /> },
-  { to: '/app/rounds', label: 'Recruitment rounds', icon: <Icon path={I.cog} /> },
 ]
 
 export function AppShell({ children }: { children: ReactNode }) {

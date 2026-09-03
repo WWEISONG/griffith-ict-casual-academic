@@ -64,11 +64,11 @@ export function ApplicantDetail() {
 
   // Pre-written email so a convenor can reach out in one click. Contact happens
   // in their own mail client; we only record that it happened.
-  const emailSubject = `${focusCourse ?? 'ICT'} tutoring — ${a.round.name}`
+  const emailSubject = `${focusCourse ?? 'ICT'} tutoring — School of ICT`
   const emailBody = [
     `Dear ${app.fullName.split(' ')[0]},`,
     '',
-    `Thank you for applying to tutor ${focusCourse ? courseLabel(focusCourse) : 'in the School of ICT'} for ${a.round.name}.`,
+    `Thank you for applying to tutor ${focusCourse ? courseLabel(focusCourse) : 'in the School of ICT'}.`,
     '',
     'I would like to discuss the role with you. Are you available for a short meeting in the coming week?',
     '',
@@ -98,7 +98,10 @@ export function ApplicantDetail() {
             {app.campus && <> · {app.campus}</>}
           </p>
           <p className="mt-0.5 text-sm text-ink-500">
-            Applied {formatDate(a.submittedAt)} for {a.round.name}
+            Applied {formatDate(a.submittedAt)}
+            {a.updatedAt && a.updatedAt !== a.submittedAt && (
+              <> · last updated {relativeTime(a.updatedAt)}</>
+            )}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

@@ -34,20 +34,16 @@ export function StudentPortal() {
   const { push } = useToast()
 
   const state = useAsync(async () => {
-    const [round, apps, experience, assignments] = await Promise.all([
-      provider.getActiveRound(),
+    const [apps, experience, assignments] = await Promise.all([
       provider.myApplications(),
       provider.myExperience(),
       provider.listAssignments(),
     ])
-    return { round, apps, experience, assignments }
+    return { apps, experience, assignments }
   }, [])
 
-  const round = state.data?.round ?? null
-  const existing = useMemo(
-    () => state.data?.apps.find((a) => a.roundId === round?.id) ?? null,
-    [state.data, round],
-  )
+  // One standing application per student, editable at any time.
+  const existing = useMemo(() => state.data?.apps[0] ?? null, [state.data])
 
   const [statement, setStatement] = useState('')
   const [hours, setHours] = useState(8)
@@ -72,22 +68,21 @@ export function StudentPortal() {
   if (state.error) return <div className="mx-auto max-w-4xl px-5 py-10"><ErrorState message={state.error} onRetry={state.reload} /></div>
 
   const { experience, assignments } = state.data!
-  const readOnly = Boolean(existing && existing.status !== 'draft')
-  const closed = round ? new Date() > new Date(round.closesAt) : true
+  // Applications stay editable so they can be kept current as experience grows.
+  const readOnly = false
+  const submitted = Boolean(existing && existing.status !== 'draft')
   const statementChars = statement.trim().length
   const usedCodes = new Set(prefs.map((p) => p.courseCode).filter(Boolean))
   const ongoing = assignments.filter((a) => a.status === 'confirmed' || a.status === 'proposed')
 
-  const canSubmit = !readOnly && prefs.filter((p) => p.courseCode).length > 0
+  const canSubmit = prefs.filter((p) => p.courseCode).length > 0
     && statementChars >= MIN_STATEMENT && hours > 0 && days.length > 0
 
   async function save(thenSubmit: boolean) {
-    if (!round) return
     setError(null)
     setSaving(thenSubmit ? 'submitting' : 'saving')
     try {
       const saved: Application = await provider.saveApplication({
-        roundId: round.id,
         statement: statement.trim(),
         hoursPerWeek: hours,
         availableDays: days,
@@ -100,9 +95,9 @@ export function StudentPortal() {
 
       if (thenSubmit) {
         await provider.submitApplication(saved.id)
-        push('success', 'Your application has been submitted.')
+        push('success', submitted ? 'Your application has been updated.' : 'Your application has been submitted.')
       } else {
-        push('success', 'Draft saved.')
+        push('success', 'Saved. You can come back and finish it any time.')
       }
       state.reload()
     } catch (e) {
@@ -122,9 +117,8 @@ export function StudentPortal() {
               Casual academic application
             </h1>
             <p className="mt-1.5 text-sm text-ink-600">
-              {round
-                ? <>{round.name} · applications close {formatDate(round.closesAt)}</>
-                : 'No recruitment round is currently open.'}
+              Tell us which courses you would like to tutor. You can update this
+              at any time as you gain experience.
             </p>
           </div>
           {existing && <StatusBadge status={existing.status} />}
@@ -152,28 +146,12 @@ export function StudentPortal() {
         </Card>
       )}
 
-      {!round && (
-        <Card>
-          <EmptyState
-            title="No recruitment round is open"
-            description="Applications open ahead of each trimester. Check back then, or contact the School office."
-          />
-        </Card>
-      )}
-
-      {round && (
-        <>
-          {readOnly && (
+      <>
+          {submitted && (
             <div className="mb-5 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-relaxed text-sky-900">
-              Submitted on {formatDate(existing!.submittedAt)}. Your application is now with the
-              convenors of the courses you nominated — they will email you directly if they
-              would like to take it further.
-            </div>
-          )}
-
-          {closed && !existing && (
-            <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-              Applications for {round.name} closed on {formatDate(round.closesAt)}.
+              Submitted on {formatDate(existing!.submittedAt)}. Convenors can see your
+              application and will email you directly if they would like to take it
+              further. You can keep it up to date below — changes are saved immediately.
             </div>
           )}
 
@@ -406,29 +384,30 @@ export function StudentPortal() {
             </Section>
 
             {/* Submit ----------------------------------------------------- */}
-            {!readOnly && (
-              <Card>
-                <div className="flex flex-wrap items-center gap-3 p-5">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-ink-900">Ready to submit?</p>
-                    <p className="mt-0.5 text-sm text-ink-600">
-                      {canSubmit
-                        ? 'Once submitted your application cannot be edited.'
-                        : 'Add a course, write 100+ characters, and choose your availability.'}
-                    </p>
-                  </div>
-                  <Button variant="secondary" onClick={() => save(false)} loading={saving === 'saving'}>
-                    Save draft
-                  </Button>
-                  <Button onClick={() => save(true)} loading={saving === 'submitting'} disabled={!canSubmit || closed}>
-                    Submit application
-                  </Button>
+            <Card>
+              <div className="flex flex-wrap items-center gap-3 p-5">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-ink-900">
+                    {submitted ? 'Keep your application up to date' : 'Ready to submit?'}
+                  </p>
+                  <p className="mt-0.5 text-sm text-ink-600">
+                    {canSubmit
+                      ? submitted
+                        ? 'Convenors always see your latest version.'
+                        : 'You can still change it afterwards.'
+                      : 'Add a course, write 100+ characters, and choose your availability.'}
+                  </p>
                 </div>
-              </Card>
-            )}
+                <Button variant="secondary" onClick={() => save(false)} loading={saving === 'saving'}>
+                  Save
+                </Button>
+                <Button onClick={() => save(true)} loading={saving === 'submitting'} disabled={!canSubmit}>
+                  {submitted ? 'Update application' : 'Submit application'}
+                </Button>
+              </div>
+            </Card>
           </div>
         </>
-      )}
 
       <ExperienceModal
         open={expOpen}

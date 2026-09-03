@@ -41,7 +41,8 @@ export interface RegisterInput {
 }
 
 export interface ApplicationDraft {
-  roundId: string
+  /** Optional: applications are no longer scoped to a recruitment round. */
+  roundId?: string | null
   statement: string
   hoursPerWeek: number
   availableDays: string[]

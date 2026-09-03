@@ -15,18 +15,10 @@ update public.profiles
        is_active  = true
  where email = 'w.song@griffith.edu.au';
 
--- 2. Open a recruitment round, if none is open -------------------------------
---    Without an open round, students cannot submit an application.
-insert into public.recruitment_rounds (name, year, trimester, opens_at, closes_at, is_active)
-select 'Trimester 1, 2027', 2027, 1, now(), now() + interval '42 days', true
-where not exists (select 1 from public.recruitment_rounds where is_active);
-
--- 3. Confirm --------------------------------------------------------------
+-- 2. Confirm --------------------------------------------------------------
+--    Applications are always open, so there is no round to create.
 select 'Administrator' as item, email, role::text as detail
   from public.profiles where email = 'w.song@griffith.edu.au'
-union all
-select 'Open round', name, closes_at::date::text
-  from public.recruitment_rounds where is_active
 union all
 select 'Courses loaded', count(*)::text, 'expected 187'
   from public.courses;

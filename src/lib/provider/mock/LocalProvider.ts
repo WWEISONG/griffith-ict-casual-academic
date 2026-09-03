@@ -337,7 +337,6 @@ export class LocalProvider implements DataProvider {
       const app = this.db.applications.find((a) => a.id === applicationId)
       if (!app) throw new Error('Application not found.')
       if (app.applicantId !== me.id) throw new Error('You may only edit your own application.')
-      if (app.status !== 'draft') throw new Error('A submitted application can no longer be edited.')
       app.statement = draft.statement
       app.hoursPerWeek = draft.hoursPerWeek
       app.availableDays = draft.availableDays
@@ -351,12 +350,12 @@ export class LocalProvider implements DataProvider {
       return app
     }
 
-    if (this.db.applications.some((a) => a.applicantId === me.id && a.roundId === draft.roundId)) {
-      throw new Error('You already have an application for this round.')
+    if (this.db.applications.some((a) => a.applicantId === me.id)) {
+      throw new Error('You already have an application.')
     }
     const id = uid('app')
     const app: Application = {
-      id, applicantId: me.id, roundId: draft.roundId, status: 'draft',
+      id, applicantId: me.id, roundId: draft.roundId ?? null, status: 'draft',
       statement: draft.statement, hoursPerWeek: draft.hoursPerWeek,
       availableDays: draft.availableDays, resumeUrl: draft.resumeUrl ?? null,
       submittedAt: null, createdAt: now, updatedAt: now,
@@ -376,18 +375,12 @@ export class LocalProvider implements DataProvider {
     const app = this.db.applications.find((a) => a.id === applicationId)
     if (!app) throw new Error('Application not found.')
     if (app.applicantId !== me.id) throw new Error('You may only submit your own application.')
-    if (app.status !== 'draft') throw new Error('This application has already been submitted.')
-
-    const round = this.db.rounds.find((r) => r.id === app.roundId)
-    if (!round?.isActive || new Date() > new Date(round.closesAt)) {
-      throw new Error(`Applications for ${round?.name ?? 'this round'} have closed.`)
-    }
     if (app.preferences.length < 1) throw new Error('Nominate at least one course before submitting.')
     if (app.statement.trim().length < 100) throw new Error('Your supporting statement must be at least 100 characters.')
 
-    app.status = 'submitted'
-    app.submittedAt = new Date().toISOString()
-    app.updatedAt = app.submittedAt
+    if (app.status === 'draft') app.status = 'submitted'
+    app.submittedAt = app.submittedAt ?? new Date().toISOString()
+    app.updatedAt = new Date().toISOString()
     this.persist()
     return app
   }
@@ -503,7 +496,7 @@ export class LocalProvider implements DataProvider {
     const app = this.db.applications.find((a) => a.id === applicationId)
     if (!app) return null
     const applicant = this.db.profiles.find((p) => p.id === app.applicantId)!
-    const round = this.db.rounds.find((r) => r.id === app.roundId)!
+    const round = this.db.rounds.find((r) => r.id === app.roundId) ?? null
     return {
       ...app,
       applicant,

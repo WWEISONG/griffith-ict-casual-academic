@@ -105,11 +105,18 @@ async function main() {
   check('student sees only their own allocations',
         myAssignments.every((a) => a.profileId === stu.userId))
 
+  // Applications stay editable so students can keep them current.
   const submitted = mine.find((a) => a.status !== 'draft')
   if (submitted) {
-    await expectReject('student cannot edit a submitted application', () =>
-      p.saveApplication({ roundId: submitted.roundId, statement: 'x'.repeat(150),
-                          hoursPerWeek: 4, availableDays: ['Mon'], preferences: [] }, submitted.id))
+    const revised = await p.saveApplication({
+      statement: submitted.statement, hoursPerWeek: 9, availableDays: ['Mon', 'Tue'],
+      preferences: submitted.preferences.map((x, i) => ({
+        courseCode: x.courseCode, rank: i + 1, confidence: x.confidence,
+      })),
+    }, submitted.id)
+    check('student can revise a submitted application', revised.hoursPerWeek === 9)
+    check('revising does not reset the review status', revised.status === submitted.status,
+          `${submitted.status} -> ${revised.status}`)
   }
 
   console.log('\nNew student registration and submission')
@@ -132,9 +139,8 @@ async function main() {
   await expectReject('a self-registered @griffith.edu.au user cannot list applicants', () =>
     p.listApplicants({}))
 
-  const round = await p.getActiveRound()
   const draft = await p.saveApplication({
-    roundId: round!.id, statement: 'Too short.', hoursPerWeek: 6,
+    statement: 'Too short.', hoursPerWeek: 6,
     availableDays: ['Mon'], preferences: [{ courseCode: '1811ICT', rank: 1, confidence: 4 }],
   })
   check('draft is created in draft status', draft.status === 'draft')
@@ -143,7 +149,6 @@ async function main() {
     p.submitApplication(draft.id))
 
   await p.saveApplication({
-    roundId: round!.id,
     statement: 'I have strong results in the introductory programming sequence and have mentored classmates through the assignments for two trimesters running.',
     hoursPerWeek: 6, availableDays: ['Mon', 'Wed'],
     preferences: [{ courseCode: '1811ICT', rank: 1, confidence: 4 }],
@@ -152,7 +157,17 @@ async function main() {
   check('submits once the statement is long enough', done.status === 'submitted')
   check('submission timestamp is recorded', Boolean(done.submittedAt))
 
-  await expectReject('cannot submit the same application twice', () => p.submitApplication(draft.id))
+  // Re-submitting is now how a student publishes a revision, so it must work.
+  const resubmitted = await p.submitApplication(draft.id)
+  check('an application can be re-submitted after revision', resubmitted.status === 'submitted')
+  check('the original submission date is preserved',
+        resubmitted.submittedAt === done.submittedAt)
+
+  await expectReject('a student cannot hold two applications', () =>
+    p.saveApplication({
+      statement: 'x'.repeat(150), hoursPerWeek: 4, availableDays: ['Mon'],
+      preferences: [{ courseCode: '1001ICT', rank: 1, confidence: 3 }],
+    }))
 
   console.log(`\n${passed} passed, ${failed} failed\n`)
   if (failed > 0) process.exit(1)

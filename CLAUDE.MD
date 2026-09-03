@@ -45,6 +45,9 @@ hands off. This keeps V1 free of HR-system integration.
 - Submit an application containing name, email, prior tutoring experience,
   ranked course preferences, and a supporting statement.
 - Save as draft and return later.
+- **Applications are always open** — no recruitment round to wait for — and stay
+  editable after submission so a student can add a course as they gain
+  experience. Convenors always see the current version.
 - **One page, no navigation.** Students have exactly one task; splitting it
   across screens added navigation without adding value.
 
@@ -102,6 +105,7 @@ RLS policies are plain PostgreSQL and carry across to RDS unchanged.
 | Experience separate from applications | A teaching record belongs to the person and persists across trimesters. |
 | Allocations separate from applications | An accepted application is a decision; an allocation is an operational fact with hours and a trimester. Conflating them makes multi-course tutors unrepresentable. |
 | Contact happens over email, not in-app | Convenors and candidates already live in email, and a message from a convenor's own address carries more weight than a system notification. The system pre-writes the message and opens their mail client; it does not try to become an inbox. This also avoids needing a sending domain approved by Griffith IT. |
+| Applications are always open | Gating on an administrator-opened "recruitment round" meant students could not register interest when they were thinking about it, and anyone who had submitted was frozen out until a new round opened. One standing application per student, revisable at any time, matches how the School actually recruits. Trimester still matters, but on allocations, where it belongs. |
 | All staff see all applicants | Maintaining a convenor-to-course map across 187 courses every trimester is not feasible, and until it existed nobody could see anything. Staff choose their courses as a filter instead. Every view and contact stays attributable through `contact_log` and `audit_log`. |
 | `contact_log` table | Because contact happens outside the system, a log is what stops two convenors approaching the same candidate unknowingly. |
 | Hash routing | Static hosting cannot rewrite unknown paths to `index.html`; deep links would 404 on refresh. Switch to path routing after the AWS move. |

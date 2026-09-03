@@ -161,7 +161,7 @@ const db = createClient(URL, KEY, { auth: { persistSession: false, autoRefreshTo
 
 let created = 0, reused = 0, failed = 0
 
-async function seedOne(a: Applicant, roundId: string) {
+async function seedOne(a: Applicant) {
   const email = `${PREFIX}${a.first}.${a.last}@griffithuni.edu.au`.toLowerCase()
   const name = `${a.first} ${a.last}`
 
@@ -209,12 +209,12 @@ async function seedOne(a: Applicant, roundId: string) {
 
   // Application, preferences, submission.
   const existing = await db.from('applications').select('id, status')
-    .eq('applicant_id', userId!).eq('round_id', roundId).maybeSingle()
+    .eq('applicant_id', userId!).maybeSingle()
 
   let appId = existing.data?.id as string | undefined
   if (!appId) {
     const ins = await db.from('applications').insert({
-      applicant_id: userId, round_id: roundId, status: 'draft',
+      applicant_id: userId, status: 'draft',
       statement: a.statement, hours_per_week: a.hours, available_days: a.days,
     }).select('id').single()
     if (ins.error) { console.log(`  x ${name}: ${ins.error.message}`); failed++; return }
@@ -262,16 +262,8 @@ async function main() {
     process.exit(1)
   }
 
-  const round = await db.from('recruitment_rounds').select('id, name').eq('is_active', true).maybeSingle()
   await db.auth.signOut()
-
-  if (!round.data) {
-    console.error('\n  No open recruitment round. Run supabase/promote-admin.sql first.\n')
-    process.exit(1)
-  }
-  console.log(`  Round: ${round.data.name}\n`)
-
-  for (const a of APPLICANTS) await seedOne(a, round.data.id)
+  for (const a of APPLICANTS) await seedOne(a)
 
   console.log(`\n  ${created} created, ${reused} already existed, ${failed} failed`)
   console.log(`  Sign-in password for every sample account: ${PASSWORD}`)

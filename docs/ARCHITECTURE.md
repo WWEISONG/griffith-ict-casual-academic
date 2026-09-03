@@ -90,7 +90,7 @@ flowchart LR
     end
 
     subgraph admin["Administrator"]
-        a1["Open recruitment<br/>round"] --> a0["Create staff<br/>accounts"] --> a2["Assign convenors<br/>to courses"] --> a3["Monitor coverage<br/>across 187 courses"] --> a4["Export for HR"]
+        a0["Create staff<br/>accounts"] --> a3["Monitor coverage<br/>across 187 courses"] --> a4["Export for HR"]
     end
 
     s5 ==> c1
@@ -106,7 +106,7 @@ flowchart LR
 | Applicant contact details | own | all applicants | all |
 | Review notes | **never** | all | all |
 | Allocate tutors | — | any course, recorded against them | all |
-| Manage accounts & rounds | — | — | yes |
+| Manage accounts & courses | — | — | yes |
 
 Staff access is School-wide by decision of the School: no reliable
 convenor-to-course map exists, and requiring one would have prevented the
@@ -131,7 +131,6 @@ erDiagram
     COURSES  ||--o{ COURSE_LECTURERS : "convened by"
     COURSES  ||--o{ APPLICATION_PREFERENCES : "nominated in"
     COURSES  ||--o{ ASSIGNMENTS : staffs
-    RECRUITMENT_ROUNDS ||--o{ APPLICATIONS : contains
     APPLICATIONS ||--o{ APPLICATION_PREFERENCES : ranks
     APPLICATIONS ||--o{ APPLICATION_NOTES : "reviewed via"
     APPLICATIONS ||--o{ CONTACT_LOG : "contacted via"
@@ -151,12 +150,6 @@ erDiagram
         text code PK "e.g. 2801ICT"
         text title
         smallint level "derived from code"
-    }
-    RECRUITMENT_ROUNDS {
-        uuid id PK
-        smallint year
-        smallint trimester "1 | 2 | 3"
-        bool is_active "at most one"
     }
     APPLICATIONS {
         uuid id PK
@@ -192,6 +185,7 @@ Ten tables plus an append-only `audit_log`. Two views (`applicant_rows`,
 | Ranked preferences in a child table, not an array | Lets a convenor query "who put *my* course first" directly, and enforces distinct ranks with a unique constraint. |
 | Experience separate from applications | A tutor's teaching record persists across trimesters; it is a property of the person, not of one application. |
 | `assignments` separate from `applications` | An accepted application is a decision; an allocation is an operational fact with hours and a trimester. Conflating them makes multi-course tutors unrepresentable. |
+| Applications are always open | An administrator-opened round blocked students from registering interest when they were thinking about it, and froze anyone who had already submitted. One standing application per student, revisable any time. `recruitment_rounds` is retained but unused, so a trimester-scoped intake can return without a schema change. |
 | Trimester as `smallint` with a check constraint, not free text | Griffith runs T1/T2/T3. Constraining it prevents "Semester 1" appearing in the data three years from now. |
 | `contact_log` exists at all | Contact happens over email, outside the system. Without a log, two convenors can chase the same candidate unknowingly. |
 
@@ -236,8 +230,10 @@ Specific controls:
 - **Drafts are invisible to staff.** `can_view_application()` excludes
   `status = 'draft'`.
 - **Review notes are never visible to applicants** — staff-only policies.
-- **Submission rules are server-side** (`submit_application()`): round still
-  open, at least one course, statement of 100+ characters.
+- **Submission rules are server-side** (`submit_application()`): at least one
+  course, statement of 100+ characters.
+- **Students cannot move their own application through the review pipeline.**
+  A trigger rejects any status change by the applicant other than withdrawing.
 - **Convenors can only allocate to their own courses** — `teaches_course()`.
 - **The service-role key never reaches the browser.** It is used only by
   `scripts/bootstrap.ts`, run locally.
